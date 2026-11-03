@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "esnext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowJs": false,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "noEmit": true,
+    "strict": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "server",
+    "vite.config.ts",
+    "src/main.tsx"
+  ]
+}
