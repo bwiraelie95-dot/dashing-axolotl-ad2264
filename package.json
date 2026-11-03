@@ -1,0 +1,48 @@
+{
+  "name": "africa-community-village",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "prisma db seed",
+    "prisma:studio": "prisma studio",
+    "db:migrate": "prisma migrate deploy",
+    "db:advanced": "tsx scripts/apply-database-objects.ts",
+    "db:deploy": "npm run db:migrate && npm run db:advanced"
+  },
+  "dependencies": {
+    "@prisma/client": "6.12.0",
+    "@tailwindcss/postcss": "^4.1.14",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.3",
+    "jose": "^6.1.0",
+    "lenis": "^1.3.27",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "mysql2": "^3.24.6",
+    "next": "^16.0.1",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "stripe": "^23.0.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.16.4",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "prisma": "6.12.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
