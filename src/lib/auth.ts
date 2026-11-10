@@ -1,11 +1,18 @@
 import { jwtVerify, SignJWT } from 'jose';
 import type { NextRequest } from 'next/server';
-import type { SafeAdminUser } from '@/models/userModel';
+import { userModel, type SafeAdminUser } from '@/models/userModel';
 
 export class UnauthorizedError extends Error {
   constructor(message = 'Authentification administrateur requise.') {
     super(message);
     this.name = 'UnauthorizedError';
+  }
+}
+
+export class ForbiddenError extends Error {
+  constructor(message = 'Vous ne disposez pas des autorisations nécessaires.') {
+    super(message);
+    this.name = 'ForbiddenError';
   }
 }
 
@@ -36,10 +43,21 @@ export async function requireAdmin(request: NextRequest) {
   const authorization = request.headers.get('authorization');
   if (!authorization?.startsWith('Bearer ')) throw new UnauthorizedError();
 
+  let payload;
   try {
-    return await verifyAuthToken(authorization.slice(7));
+    payload = await verifyAuthToken(authorization.slice(7));
   } catch (error) {
     if (error instanceof UnauthorizedError) throw error;
     throw new UnauthorizedError('Session expirée ou invalide.');
   }
+
+  const user = await userModel.findById(String(payload.sub));
+  if (!user || user.status !== 'active') throw new UnauthorizedError('Compte inactif ou session invalide.');
+  return user;
+}
+
+export async function requireSuperAdmin(request: NextRequest) {
+  const user = await requireAdmin(request);
+  if (user.role !== 'super-admin') throw new ForbiddenError();
+  return user;
 }

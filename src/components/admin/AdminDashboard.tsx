@@ -38,10 +38,12 @@ import {
   Copy,
   ExternalLink,
   AlertTriangle,
-  Database
+  Database,
+  KeyRound
 } from 'lucide-react';
 import { DatabaseScriptTab } from './DatabaseScriptTab';
 import { AdminNavigation, type AdminTab } from './AdminNavigation';
+import { api, ApiError } from '../../services/api';
 import {
   PageItem,
   BannerSlide,
@@ -167,6 +169,12 @@ export const AdminDashboard: React.FC = () => {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -195,6 +203,35 @@ export const AdminDashboard: React.FC = () => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard?.writeText(text);
     showToast(isFr ? 'URL copiée dans le presse-papiers !' : 'URL copied to clipboard!');
+  };
+
+  const handlePasswordChange = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPasswordError(null);
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(isFr ? 'Les nouveaux mots de passe ne correspondent pas.' : 'The new passwords do not match.');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await api.auth.changePassword(currentPassword, newPassword);
+      setPasswordModalOpen(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      logoutAdmin();
+      navigateTo('/admin/login');
+    } catch (error) {
+      setPasswordError(
+        error instanceof ApiError
+          ? error.message
+          : (isFr ? 'Le changement de mot de passe a échoué.' : 'Password change failed.')
+      );
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const unreadMessages = contactSubmissions.filter((submission) => submission.read !== true).length;
@@ -264,6 +301,18 @@ export const AdminDashboard: React.FC = () => {
                 <div className="text-xs font-bold text-white">{adminUser?.name}</div>
                 <div className="text-[10px] text-stone-400 font-label">{adminUser?.email}</div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setPasswordError(null);
+                  setPasswordModalOpen(true);
+                }}
+                className="p-1.5 sm:p-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors cursor-pointer shrink-0"
+                title={isFr ? 'Changer le mot de passe' : 'Change password'}
+              >
+                <KeyRound className="w-4 h-4" />
+              </button>
 
               <button
                 onClick={() => {
@@ -1518,6 +1567,95 @@ export const AdminDashboard: React.FC = () => {
           </main>
         </div>
       </div>
+
+      {passwordModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-3xl border border-stone-200 bg-white p-6 shadow-2xl sm:p-8">
+            <div className="mb-6 flex items-start justify-between gap-4 border-b border-stone-100 pb-4">
+              <div>
+                <p className="font-label text-[10px] font-bold uppercase tracking-widest text-[#690C07]">
+                  {isFr ? 'Sécurité du compte' : 'Account security'}
+                </p>
+                <h2 className="mt-1 font-display text-xl font-bold text-stone-950">
+                  {isFr ? 'Changer le mot de passe' : 'Change password'}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPasswordModalOpen(false)}
+                className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+                aria-label={isFr ? 'Fermer' : 'Close'}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              {passwordError && (
+                <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                  {passwordError}
+                </div>
+              )}
+
+              <label className="block text-xs font-label font-bold uppercase tracking-wider text-stone-700">
+                {isFr ? 'Mot de passe actuel' : 'Current password'}
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  minLength={8}
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  className="mt-2 h-12 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 text-base font-normal normal-case tracking-normal text-stone-950 outline-hidden focus:border-[#690C07] focus:ring-4 focus:ring-[#690C07]/10"
+                />
+              </label>
+
+              <label className="block text-xs font-label font-bold uppercase tracking-wider text-stone-700">
+                {isFr ? 'Nouveau mot de passe' : 'New password'}
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={12}
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  className="mt-2 h-12 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 text-base font-normal normal-case tracking-normal text-stone-950 outline-hidden focus:border-[#690C07] focus:ring-4 focus:ring-[#690C07]/10"
+                />
+              </label>
+
+              <label className="block text-xs font-label font-bold uppercase tracking-wider text-stone-700">
+                {isFr ? 'Confirmer le nouveau mot de passe' : 'Confirm new password'}
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={12}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  className="mt-2 h-12 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 text-base font-normal normal-case tracking-normal text-stone-950 outline-hidden focus:border-[#690C07] focus:ring-4 focus:ring-[#690C07]/10"
+                />
+              </label>
+
+              <p className="text-xs leading-5 text-stone-500">
+                {isFr
+                  ? 'Minimum 12 caractères, avec majuscule, minuscule, chiffre et caractère spécial.'
+                  : 'Use at least 12 characters with uppercase, lowercase, a number and a special character.'}
+              </p>
+
+              <button
+                type="submit"
+                disabled={changingPassword}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#690C07] px-5 py-3 font-label text-xs font-bold uppercase tracking-wider text-white hover:bg-[#520905] disabled:cursor-wait disabled:opacity-60"
+              >
+                <KeyRound className="h-4 w-4" />
+                {changingPassword
+                  ? (isFr ? 'Mise à jour…' : 'Updating…')
+                  : (isFr ? 'Mettre à jour le mot de passe' : 'Update password')}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* EDIT BANNER MODAL WITH LIVE PREVIEW & DEVICE FILE UPLOAD */}
       {editingBanner && (

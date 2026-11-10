@@ -60,6 +60,17 @@ export const userModel = {
     return toSafeUser(updated);
   },
 
+  async changePassword(id: string, currentPassword: string, newPassword: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({ where: { externalId: id } });
+    if (!user || user.status !== 'active' || !(await compare(currentPassword, user.passwordHash))) return false;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: await hash(newPassword, 12) }
+    });
+    return true;
+  },
+
   async create(data: Record<string, unknown>): Promise<SafeAdminUser> {
     const password = String(data.password ?? randomUUID());
     const user = await prisma.user.create({

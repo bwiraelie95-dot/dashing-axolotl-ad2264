@@ -64,6 +64,13 @@ function dispatchRequestEvent(name: typeof REQUEST_START_EVENT | typeof REQUEST_
   }
 }
 
+export class ApiError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 export function getAuthToken(): string | null {
   return typeof window === 'undefined' ? null : localStorage.getItem('acv_auth_token');
 }
@@ -105,7 +112,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
       } catch {
         // ignore
       }
-      throw new Error(errorMsg);
+      throw new ApiError(errorMsg, res.status);
     }
 
     return res.json();
@@ -158,6 +165,12 @@ export const api = {
         setAuthToken(res.token);
       }
       return res;
+    },
+    async changePassword(currentPassword: string, newPassword: string) {
+      return request<{ success: boolean }>('/admin/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
     },
     logout() {
       setAuthToken(null);

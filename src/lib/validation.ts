@@ -43,6 +43,21 @@ export const loginSchema = z.object({
   password: z.string().min(8).max(200)
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(8).max(200),
+  newPassword: z
+    .string()
+    .min(12)
+    .max(200)
+    .regex(/[a-z]/, 'Le nouveau mot de passe doit contenir une minuscule.')
+    .regex(/[A-Z]/, 'Le nouveau mot de passe doit contenir une majuscule.')
+    .regex(/[0-9]/, 'Le nouveau mot de passe doit contenir un chiffre.')
+    .regex(/[^A-Za-z0-9]/, 'Le nouveau mot de passe doit contenir un caractère spécial.')
+}).refine((data) => data.currentPassword !== data.newPassword, {
+  path: ['newPassword'],
+  message: 'Le nouveau mot de passe doit être différent du mot de passe actuel.'
+});
+
 export const contactSchema = z.object({
   name: z.string().trim().min(2).max(150),
   email: z.email().max(191),

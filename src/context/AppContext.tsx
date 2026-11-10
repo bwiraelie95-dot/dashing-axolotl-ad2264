@@ -25,7 +25,7 @@ import {
   DataRequestState
 } from '../types';
 import { fallbackBanners, fallbackSiteSettings } from '../data/fallbackData';
-import { api, getAuthToken } from '../services/api';
+import { api, ApiError, getAuthToken } from '../services/api';
 
 export interface AppContextType {
   language: Language;
@@ -521,7 +521,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
         return true;
       }
     } catch (err) {
-      console.warn('Admin authentication failed:', err);
+      if (err instanceof ApiError && err.status === 401) return false;
+      throw err;
     }
 
     return false;
