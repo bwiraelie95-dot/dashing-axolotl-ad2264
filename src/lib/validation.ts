@@ -28,7 +28,60 @@ export type AdminEntity = z.infer<typeof adminEntitySchema>;
 
 export const idSchema = z.string().trim().min(1).max(191);
 
-export const entityPayloadSchema = z.record(z.string(), z.unknown());
+export const entityPayloadSchema = z
+  .record(z.string().max(100), z.unknown())
+  .refine((payload) => Object.keys(payload).length > 0, 'Aucune donnée à enregistrer.')
+  .refine((payload) => Object.keys(payload).length <= 100, 'Trop de champs ont été envoyés.');
+
+const adminRoleSchema = z.enum(['super-admin', 'admin', 'editor', 'viewer']);
+const adminStatusSchema = z.enum(['active', 'suspended']);
+
+export const adminUserCreateSchema = z.object({
+  id: idSchema.optional(),
+  name: z.string().trim().min(2).max(150),
+  email: z.email().max(191).transform((value) => value.trim().toLowerCase()),
+  password: z.string().min(12).max(200),
+  role: adminRoleSchema.default('editor'),
+  status: adminStatusSchema.default('active'),
+  avatar: z.string().trim().max(2_048).optional()
+}).strict();
+
+export const adminUserPatchSchema = adminUserCreateSchema
+  .omit({ id: true })
+  .partial()
+  .refine((payload) => Object.keys(payload).length > 0, 'Aucune donnée à enregistrer.');
+
+export const contactSubmissionPatchSchema = z.object({
+  read: z.boolean().optional(),
+  status: z.enum(['new', 'reviewed', 'replied']).optional()
+}).strict().refine((payload) => Object.keys(payload).length > 0, 'Aucune donnée à enregistrer.');
+
+export const siteSettingsPatchSchema = z.object({
+  organizationName: z.string().trim().max(191).optional(),
+  address: z.string().trim().max(500).optional(),
+  email: z.email().max(191).optional(),
+  secondaryEmail: z.union([z.email().max(191), z.literal('')]).optional(),
+  phone: z.string().trim().max(50).optional(),
+  secondaryPhone: z.string().trim().max(50).optional(),
+  whatsapp: z.string().trim().max(50).optional(),
+  officeHoursEn: z.string().trim().max(500).optional(),
+  officeHoursFr: z.string().trim().max(500).optional(),
+  registrationNumber: z.string().trim().max(191).optional(),
+  instagramUrl: z.string().trim().max(2_048).optional(),
+  facebookUrl: z.string().trim().max(2_048).optional(),
+  linkedinUrl: z.string().trim().max(2_048).optional(),
+  twitterUrl: z.string().trim().max(2_048).optional(),
+  instagram: z.string().trim().max(2_048).optional(),
+  facebook: z.string().trim().max(2_048).optional(),
+  linkedin: z.string().trim().max(2_048).optional(),
+  twitter: z.string().trim().max(2_048).optional(),
+  legalNoticeEn: z.string().max(50_000).optional(),
+  legalNoticeFr: z.string().max(50_000).optional(),
+  privacyPolicyEn: z.string().max(50_000).optional(),
+  privacyPolicyFr: z.string().max(50_000).optional(),
+  defaultOgImage: z.string().trim().max(2_048).optional(),
+  bannerSpeedMs: z.coerce.number().int().min(3_000).max(60_000).optional()
+}).strict().refine((payload) => Object.keys(payload).length > 0, 'Aucune donnée à enregistrer.');
 
 const bannerPayloadFields = {
   id: idSchema.optional(),

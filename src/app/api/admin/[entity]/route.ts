@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin, requireSuperAdmin } from '@/lib/auth';
-import { apiError, getRequestIp } from '@/lib/http';
-import { adminEntitySchema, adminQuerySchema, bannerPayloadSchema, entityPayloadSchema } from '@/lib/validation';
+import { requireAdmin, requireContentEditor, requireSuperAdmin } from '@/lib/auth';
+import { apiError, getRequestIp, MethodNotAllowedError } from '@/lib/http';
+import {
+  adminEntitySchema,
+  adminQuerySchema,
+  adminUserCreateSchema,
+  bannerPayloadSchema,
+  entityPayloadSchema
+} from '@/lib/validation';
 import { contentModel } from '@/models/contentModel';
 import { userModel } from '@/models/userModel';
 import { logAuditAction } from '@/models/auditModel';
@@ -43,9 +49,18 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
-    const actor = entity === 'users' ? await requireSuperAdmin(request) : await requireAdmin(request);
+    const actor = entity === 'users' || entity === 'siteSettings'
+      ? await requireSuperAdmin(request)
+      : await requireContentEditor(request);
+    if (['auditLogs', 'media', 'donors', 'contactSubmissions', 'siteSettings'].includes(entity)) {
+      throw new MethodNotAllowedError();
+    }
     const body: unknown = await request.json();
-    const payload = entity === 'banners' ? bannerPayloadSchema.parse(body) : entityPayloadSchema.parse(body);
+    const payload = entity === 'users'
+      ? adminUserCreateSchema.parse(body)
+      : entity === 'banners'
+        ? bannerPayloadSchema.parse(body)
+        : entityPayloadSchema.parse(body);
 
     const item = entity === 'users' ? await userModel.create(payload) : await contentModel.create(entity, payload);
     await logAuditAction(

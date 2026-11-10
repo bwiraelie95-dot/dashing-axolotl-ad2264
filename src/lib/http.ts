@@ -9,6 +9,13 @@ export class ConflictError extends Error {
   }
 }
 
+export class MethodNotAllowedError extends Error {
+  constructor(message = 'Cette opération n’est pas autorisée pour cette ressource.') {
+    super(message);
+    this.name = 'MethodNotAllowedError';
+  }
+}
+
 export function apiError(error: unknown) {
   if (error instanceof ZodError) {
     return NextResponse.json(
@@ -24,6 +31,9 @@ export function apiError(error: unknown) {
   }
   if (error instanceof ConflictError) {
     return NextResponse.json({ success: false, error: error.message }, { status: 409 });
+  }
+  if (error instanceof MethodNotAllowedError) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 405 });
   }
   if (error instanceof Error && 'code' in error && error.code === 'P2002') {
     return NextResponse.json({ success: false, error: 'Cette valeur existe déjà.' }, { status: 409 });
