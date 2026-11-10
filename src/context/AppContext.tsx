@@ -88,7 +88,7 @@ export interface AppContextType {
   deleteGovernance: (id: string) => Promise<void>;
 
   policies: PolicyDocument[];
-  updatePolicy: (policy: PolicyDocument | string, partial?: Partial<PolicyDocument>) => void;
+  updatePolicy: (policy: PolicyDocument | string, partial?: Partial<PolicyDocument>) => Promise<void>;
 
   blogPosts: Article[];
   articles: Article[];
@@ -97,8 +97,8 @@ export interface AppContextType {
   deleteBlogPost: (id: string) => Promise<void>;
 
   fieldNotes: FieldNote[];
-  addFieldNote: (note: FieldNote | Omit<FieldNote, 'id'>) => void;
-  deleteFieldNote: (id: string) => void;
+  addFieldNote: (note: FieldNote | Omit<FieldNote, 'id'>) => Promise<void>;
+  deleteFieldNote: (id: string) => Promise<void>;
 
   media: MediaItem[];
   deleteMedia: (id: string) => Promise<void>;
@@ -453,23 +453,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
     }
 
     if (routeGroup === '/admin' && (adminUser || getAuthToken())) {
-      const adminResults = await Promise.allSettled([
-        api.admin.list<BannerSlide>('banners', { page: 1, limit: 100 }),
-        api.admin.list<MediaItem>('media', { page: 1, limit: 100 }),
-        api.admin.list<Donor>('donors', { page: 1, limit: 100 }),
-        api.admin.list<ContactSubmission>('contactSubmissions', { page: 1, limit: 100 }),
-        api.admin.list<AuditLog>('auditLogs', { page: 1, limit: 100 }),
-        api.admin.list<AdminUser>('users', { page: 1, limit: 100 }),
-        api.admin.list<PageItem>('pages', { page: 1, limit: 100 })
-      ]);
-      const [bannersResult, mediaResult, donorsResult, contactsResult, auditsResult, usersResult, pagesResult] = adminResults;
-      if (bannersResult.status === 'fulfilled') setBanners(bannersResult.value.data);
-      if (mediaResult.status === 'fulfilled') setMedia(mediaResult.value.data);
-      if (donorsResult.status === 'fulfilled') setDonors(donorsResult.value.data);
-      if (contactsResult.status === 'fulfilled') setContactSubmissions(contactsResult.value.data);
-      if (auditsResult.status === 'fulfilled') setAuditLogs(auditsResult.value.data);
-      if (usersResult.status === 'fulfilled') setAdminUsers(usersResult.value.data);
-      if (pagesResult.status === 'fulfilled') setPages(pagesResult.value.data);
+      const adminTasks: PublicLoadTask[] = [
+        { key: 'admin:pages', load: () => api.admin.list<PageItem>('pages', { page: 1, limit: 200 }), apply: (data) => setPages(data as PageItem[]) },
+        { key: 'admin:banners', load: () => api.admin.list<BannerSlide>('banners', { page: 1, limit: 200 }), apply: (data) => setBanners(data as BannerSlide[]) },
+        { key: 'admin:programs', load: () => api.admin.list<ProgramPillar>('programs', { page: 1, limit: 200 }), apply: (data) => setPrograms(data as ProgramPillar[]) },
+        { key: 'admin:team', load: () => api.admin.list<TeamMember>('team', { page: 1, limit: 200 }), apply: (data) => setTeamMembers(data as TeamMember[]) },
+        { key: 'admin:founders', load: () => api.admin.list<Founder>('founders', { page: 1, limit: 200 }), apply: (data) => setFounders(data as Founder[]) },
+        { key: 'admin:fieldStaff', load: () => api.admin.list<FieldAgent>('fieldStaff', { page: 1, limit: 200 }), apply: (data) => setFieldStaff(data as FieldAgent[]) },
+        { key: 'admin:governance', load: () => api.admin.list<GovernanceMember>('governance', { page: 1, limit: 200 }), apply: (data) => setGovernance(data as GovernanceMember[]) },
+        { key: 'admin:articles', load: () => api.admin.list<Article>('articles', { page: 1, limit: 200 }), apply: (data) => setArticles(data as Article[]) },
+        { key: 'admin:media', load: () => api.admin.list<MediaItem>('media', { page: 1, limit: 200 }), apply: (data) => setMedia(data as MediaItem[]) },
+        { key: 'admin:partners', load: () => api.admin.list<Partner>('partners', { page: 1, limit: 200 }), apply: (data) => setPartners(data as Partner[]) },
+        { key: 'admin:donors', load: () => api.admin.list<Donor>('donors', { page: 1, limit: 200 }), apply: (data) => setDonors(data as Donor[]) },
+        { key: 'admin:testimonials', load: () => api.admin.list<Testimonial>('testimonials', { page: 1, limit: 200 }), apply: (data) => setTestimonials(data as Testimonial[]) },
+        { key: 'admin:stats', load: () => api.admin.list<ImpactStat>('stats', { page: 1, limit: 200 }), apply: (data) => setStats(data as ImpactStat[]) },
+        { key: 'admin:contacts', load: () => api.admin.list<ContactSubmission>('contactSubmissions', { page: 1, limit: 200 }), apply: (data) => setContactSubmissions(data as ContactSubmission[]) },
+        { key: 'admin:audit', load: () => api.admin.list<AuditLog>('auditLogs', { page: 1, limit: 200 }), apply: (data) => setAuditLogs(data as AuditLog[]) },
+        { key: 'admin:settings', load: () => api.admin.list<SiteSettings>('siteSettings', { page: 1, limit: 1 }), apply: (data) => {
+          const settings = (data as SiteSettings[])[0];
+          if (settings) setSiteSettings((previous) => ({ ...previous, ...settings }));
+        } },
+        { key: 'admin:policies', load: () => api.admin.list<PolicyDocument>('policies', { page: 1, limit: 200 }), apply: (data) => setPolicies(data as PolicyDocument[]) },
+        { key: 'admin:fieldNotes', load: () => api.admin.list<FieldNote>('fieldNotes', { page: 1, limit: 200 }), apply: (data) => setFieldNotes(data as FieldNote[]) }
+      ];
+      if (adminUser?.role === 'super-admin') {
+        adminTasks.push({ key: 'admin:users', load: () => api.admin.list<AdminUser>('users', { page: 1, limit: 200 }), apply: (data) => setAdminUsers(data as AdminUser[]) });
+      }
+
+      for (let index = 0; index < adminTasks.length; index += 3) {
+        const batch = adminTasks.slice(index, index + 3);
+        const results = await Promise.allSettled(batch.map((task) => task.load()));
+        results.forEach((result, resultIndex) => {
+          if (result.status === 'fulfilled' && result.value.success) {
+            batch[resultIndex].apply(result.value.data);
+          } else {
+            failures += 1;
+          }
+        });
+      }
 
       try {
         const dashboard = await api.dashboard.getStats();
@@ -552,7 +573,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
     return items;
   };
 
-  // CRUD Implementations with API + Local optimistic update
+  // CRUD state changes are applied only after the API confirms persistence.
 
   // Pages
   const addPage = async (item: Partial<PageItem>): Promise<PageItem> => {
@@ -566,35 +587,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       order: pages.length + 1,
       ...item
     } as PageItem;
-    try {
-      const res = await api.admin.create<PageItem>('pages', newItem);
-      if (res.data) {
-        setPages((prev) => [...prev, res.data]);
-        return res.data;
-      }
-    } catch (e) {
-      console.warn('API error, saving locally:', e);
-    }
-    setPages((prev) => [...prev, newItem]);
-    return newItem;
+    const response = await api.admin.create<PageItem>('pages', newItem);
+    setPages((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
+    return response.data;
   };
 
   const updatePage = async (id: string, partial: Partial<PageItem>): Promise<void> => {
-    setPages((prev) => prev.map((p) => (p.id === id ? { ...p, ...partial } : p)));
-    try {
-      await api.admin.update('pages', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<PageItem>('pages', id, partial);
+    setPages((prev) => prev.map((page) => (page.id === id ? response.data : page)));
   };
 
   const deletePage = async (id: string): Promise<void> => {
-    setPages((prev) => prev.filter((p) => p.id !== id));
-    try {
-      await api.admin.delete('pages', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('pages', id);
+    setPages((prev) => prev.filter((page) => page.id !== id));
+    await refreshDashboardStats();
   };
 
   // Banners
@@ -645,36 +652,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       objectivesFr: item.objectivesFr || ['Renforcer les communautés'],
       ...item
     };
-    setPrograms((prev) => [...prev, newP]);
-    try {
-      await api.admin.create('programs', newP);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newP;
+    const response = await api.admin.create<ProgramPillar>('programs', newP);
+    setPrograms((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
+    return response.data;
   };
 
   const updateProgram = async (arg1: ProgramPillar | string, partial?: Partial<ProgramPillar>): Promise<void> => {
     const id = typeof arg1 === 'string' ? arg1 : arg1.id;
     const patch = typeof arg1 === 'string' ? partial || {} : arg1;
-    setPrograms((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
-    try {
-      await api.admin.update('programs', id, patch);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<ProgramPillar>('programs', id, patch);
+    setPrograms((prev) => prev.map((program) => (program.id === id ? response.data : program)));
+    await refreshDashboardStats();
   };
 
   const deleteProgram = async (id: string): Promise<void> => {
-    setPrograms((prev) => prev.filter((p) => p.id !== id));
-    try {
-      await api.admin.delete('programs', id);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('programs', id);
+    setPrograms((prev) => prev.filter((program) => program.id !== id));
+    await refreshDashboardStats();
   };
 
   // Team
@@ -686,35 +681,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
             ...m,
             id: `tm_${Date.now()}`
           };
-    setTeamMembers((prev) => [...prev, newM]);
-    try {
-      await api.admin.create('team', newM);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.create<TeamMember>('team', newM);
+    setTeamMembers((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
   };
 
   const updateTeamMember = async (arg1: TeamMember | string, partial?: Partial<TeamMember>): Promise<void> => {
     const id = typeof arg1 === 'string' ? arg1 : arg1.id;
     const patch = typeof arg1 === 'string' ? partial || {} : arg1;
-    setTeamMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
-    try {
-      await api.admin.update('team', id, patch);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<TeamMember>('team', id, patch);
+    setTeamMembers((prev) => prev.map((member) => (member.id === id ? response.data : member)));
+    await refreshDashboardStats();
   };
 
   const deleteTeamMember = async (id: string): Promise<void> => {
-    setTeamMembers((prev) => prev.filter((m) => m.id !== id));
-    try {
-      await api.admin.delete('team', id);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('team', id);
+    setTeamMembers((prev) => prev.filter((member) => member.id !== id));
+    await refreshDashboardStats();
   };
 
   // Founders
@@ -732,32 +715,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       status: 'visible',
       ...item
     };
-    setFounders((prev) => [...prev, newF]);
-    try {
-      await api.admin.create('founders', newF);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newF;
+    const response = await api.admin.create<Founder>('founders', newF);
+    setFounders((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
+    return response.data;
   };
 
   const updateFounder = async (id: string, partial: Partial<Founder>): Promise<void> => {
-    setFounders((prev) => prev.map((f) => (f.id === id ? { ...f, ...partial } : f)));
-    try {
-      await api.admin.update('founders', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<Founder>('founders', id, partial);
+    setFounders((prev) => prev.map((founder) => (founder.id === id ? response.data : founder)));
   };
 
   const deleteFounder = async (id: string): Promise<void> => {
-    setFounders((prev) => prev.filter((f) => f.id !== id));
-    try {
-      await api.admin.delete('founders', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('founders', id);
+    setFounders((prev) => prev.filter((founder) => founder.id !== id));
+    await refreshDashboardStats();
   };
 
   // Field Staff
@@ -774,32 +746,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       status: 'active',
       ...item
     };
-    setFieldStaff((prev) => [...prev, newA]);
-    try {
-      await api.admin.create('fieldStaff', newA);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newA;
+    const response = await api.admin.create<FieldAgent>('fieldStaff', newA);
+    setFieldStaff((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
+    return response.data;
   };
 
   const updateFieldStaff = async (id: string, partial: Partial<FieldAgent>): Promise<void> => {
-    setFieldStaff((prev) => prev.map((s) => (s.id === id ? { ...s, ...partial } : s)));
-    try {
-      await api.admin.update('fieldStaff', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<FieldAgent>('fieldStaff', id, partial);
+    setFieldStaff((prev) => prev.map((member) => (member.id === id ? response.data : member)));
   };
 
   const deleteFieldStaff = async (id: string): Promise<void> => {
-    setFieldStaff((prev) => prev.filter((s) => s.id !== id));
-    try {
-      await api.admin.delete('fieldStaff', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('fieldStaff', id);
+    setFieldStaff((prev) => prev.filter((member) => member.id !== id));
+    await refreshDashboardStats();
   };
 
   // Governance
@@ -817,38 +778,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       status: 'active',
       ...item
     };
-    setGovernance((prev) => [...prev, newG]);
-    try {
-      await api.admin.create('governance', newG);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newG;
+    const response = await api.admin.create<GovernanceMember>('governance', newG);
+    setGovernance((prev) => [...prev, response.data]);
+    return response.data;
   };
 
   const updateGovernance = async (id: string, partial: Partial<GovernanceMember>): Promise<void> => {
-    setGovernance((prev) => prev.map((g) => (g.id === id ? { ...g, ...partial } : g)));
-    try {
-      await api.admin.update('governance', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<GovernanceMember>('governance', id, partial);
+    setGovernance((prev) => prev.map((member) => (member.id === id ? response.data : member)));
   };
 
   const deleteGovernance = async (id: string): Promise<void> => {
-    setGovernance((prev) => prev.filter((g) => g.id !== id));
-    try {
-      await api.admin.delete('governance', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('governance', id);
+    setGovernance((prev) => prev.filter((member) => member.id !== id));
   };
 
   // Policies
-  const updatePolicy = (arg1: PolicyDocument | string, partial?: Partial<PolicyDocument>) => {
+  const updatePolicy = async (arg1: PolicyDocument | string, partial?: Partial<PolicyDocument>): Promise<void> => {
     const id = typeof arg1 === 'string' ? arg1 : arg1.id;
     const patch = typeof arg1 === 'string' ? partial || {} : arg1;
-    setPolicies((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+    const response = await api.admin.update<PolicyDocument>('policies', id, patch);
+    setPolicies((prev) => prev.map((policy) => (policy.id === id ? response.data : policy)));
   };
 
   // Articles / Blog
@@ -860,56 +810,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
             ...b,
             id: `art_${Date.now()}`
           };
-    setArticles((prev) => [newB, ...prev]);
-    try {
-      await api.admin.create('articles', newB);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.create<Article>('articles', newB);
+    setArticles((prev) => [response.data, ...prev]);
+    await refreshDashboardStats();
   };
 
   const updateBlogPost = async (arg1: Article | string, partial?: Partial<Article>): Promise<void> => {
     const id = typeof arg1 === 'string' ? arg1 : arg1.id;
     const patch = typeof arg1 === 'string' ? partial || {} : arg1;
-    setArticles((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
-    try {
-      await api.admin.update('articles', id, patch);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<Article>('articles', id, patch);
+    setArticles((prev) => prev.map((article) => (article.id === id ? response.data : article)));
+    await refreshDashboardStats();
   };
 
   const deleteBlogPost = async (id: string): Promise<void> => {
-    setArticles((prev) => prev.filter((a) => a.id !== id));
-    try {
-      await api.admin.delete('articles', id);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('articles', id);
+    setArticles((prev) => prev.filter((article) => article.id !== id));
+    await refreshDashboardStats();
   };
 
   // Field Notes
-  const addFieldNote = (n: FieldNote | Omit<FieldNote, 'id'>) => {
+  const addFieldNote = async (n: FieldNote | Omit<FieldNote, 'id'>): Promise<void> => {
     const newN: FieldNote = 'id' in n ? n : { ...n, id: `fn_${Date.now()}` };
-    setFieldNotes((prev) => [newN, ...prev]);
+    const response = await api.admin.create<FieldNote>('fieldNotes', newN);
+    setFieldNotes((prev) => [response.data, ...prev]);
   };
 
-  const deleteFieldNote = (id: string) => {
+  const deleteFieldNote = async (id: string): Promise<void> => {
+    await api.admin.delete('fieldNotes', id);
     setFieldNotes((prev) => prev.filter((n) => n.id !== id));
   };
 
   // Media
   const deleteMedia = async (id: string): Promise<void> => {
-    setMedia((prev) => prev.filter((m) => m.id !== id));
-    try {
-      await api.admin.delete('media', id);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('media', id);
+    setMedia((prev) => prev.filter((item) => item.id !== id));
+    await refreshDashboardStats();
   };
 
   // Partners
@@ -923,33 +859,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       status: 'active',
       ...item
     };
-    setPartners((prev) => [...prev, newP]);
-    try {
-      await api.admin.create('partners', newP);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newP;
+    const response = await api.admin.create<Partner>('partners', newP);
+    setPartners((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
+    return response.data;
   };
 
   const updatePartner = async (id: string, partial: Partial<Partner>): Promise<void> => {
-    setPartners((prev) => prev.map((p) => (p.id === id ? { ...p, ...partial } : p)));
-    try {
-      await api.admin.update('partners', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<Partner>('partners', id, partial);
+    setPartners((prev) => prev.map((partner) => (partner.id === id ? response.data : partner)));
   };
 
   const deletePartner = async (id: string): Promise<void> => {
-    setPartners((prev) => prev.filter((p) => p.id !== id));
-    try {
-      await api.admin.delete('partners', id);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('partners', id);
+    setPartners((prev) => prev.filter((partner) => partner.id !== id));
+    await refreshDashboardStats();
   };
 
   // Donors
@@ -964,13 +888,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
             amount: Number(d.amount) || 50,
             currency: d.currency || 'USD'
           };
-    setDonors((prev) => [newD, ...prev]);
-    try {
-      await api.public.submitDonation(newD);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.public.submitDonation(newD);
+    setDonors((prev) => [response.data, ...prev]);
+    await refreshDashboardStats();
   };
 
   // Testimonials
@@ -986,31 +906,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       order: testimonials.length + 1,
       ...item
     };
-    setTestimonials((prev) => [...prev, newT]);
-    try {
-      await api.admin.create('testimonials', newT);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newT;
+    const response = await api.admin.create<Testimonial>('testimonials', newT);
+    setTestimonials((prev) => [...prev, response.data]);
+    return response.data;
   };
 
   const updateTestimonial = async (id: string, partial: Partial<Testimonial>): Promise<void> => {
-    setTestimonials((prev) => prev.map((t) => (t.id === id ? { ...t, ...partial } : t)));
-    try {
-      await api.admin.update('testimonials', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<Testimonial>('testimonials', id, partial);
+    setTestimonials((prev) => prev.map((testimonial) => (testimonial.id === id ? response.data : testimonial)));
   };
 
   const deleteTestimonial = async (id: string): Promise<void> => {
-    setTestimonials((prev) => prev.filter((t) => t.id !== id));
-    try {
-      await api.admin.delete('testimonials', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('testimonials', id);
+    setTestimonials((prev) => prev.filter((testimonial) => testimonial.id !== id));
   };
 
   // Stats / KPIs
@@ -1026,41 +934,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       status: 'active',
       ...item
     };
-    setStats((prev) => [...prev, newS]);
-    try {
-      await api.admin.create('stats', newS);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newS;
+    const response = await api.admin.create<ImpactStat>('stats', newS);
+    setStats((prev) => [...prev, response.data]);
+    return response.data;
   };
 
   const updateStat = async (id: string, partial: Partial<ImpactStat>): Promise<void> => {
-    setStats((prev) => prev.map((s) => (s.id === id ? { ...s, ...partial } : s)));
-    try {
-      await api.admin.update('stats', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<ImpactStat>('stats', id, partial);
+    setStats((prev) => prev.map((stat) => (stat.id === id ? response.data : stat)));
   };
 
   const deleteStat = async (id: string): Promise<void> => {
-    setStats((prev) => prev.filter((s) => s.id !== id));
-    try {
-      await api.admin.delete('stats', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('stats', id);
+    setStats((prev) => prev.filter((stat) => stat.id !== id));
   };
 
   // Site Settings
   const updateSiteSettings = async (partial: Partial<SiteSettings>): Promise<void> => {
-    setSiteSettings((prev) => ({ ...prev, ...partial }));
-    try {
-      await api.admin.update('siteSettings', siteSettings.id || 'settings_main', partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<SiteSettings>('siteSettings', siteSettings.id || 'settings_main', partial);
+    setSiteSettings((prev) => ({ ...prev, ...response.data }));
   };
 
   // Contact Submissions
@@ -1075,37 +967,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
             read: false,
             status: 'new'
           };
-    setContactSubmissions((prev) => [newSub, ...prev]);
-    try {
-      await api.public.submitContact(newSub);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.public.submitContact(newSub);
+    setContactSubmissions((prev) => [response.data, ...prev]);
+    await refreshDashboardStats();
   };
 
   const markContactRead = async (id: string): Promise<void> => {
-    setContactSubmissions((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, read: true, status: 'reviewed' } : c))
-    );
-    try {
-      await api.admin.update('contactSubmissions', id, { read: true, status: 'reviewed' });
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<ContactSubmission>('contactSubmissions', id, { read: true, status: 'reviewed' });
+    setContactSubmissions((prev) => prev.map((submission) => (submission.id === id ? response.data : submission)));
+    await refreshDashboardStats();
   };
 
   const updateContactStatus = async (id: string, status: ContactSubmission['status']): Promise<void> => {
-    setContactSubmissions((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status, read: true } : c))
-    );
-    try {
-      await api.admin.update('contactSubmissions', id, { status, read: true });
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<ContactSubmission>('contactSubmissions', id, { status, read: true });
+    setContactSubmissions((prev) => prev.map((submission) => (submission.id === id ? response.data : submission)));
+    await refreshDashboardStats();
   };
 
   // Admin Users
@@ -1118,31 +994,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
       status: 'active',
       ...item
     };
-    setAdminUsers((prev) => [...prev, newU]);
-    try {
-      await api.admin.create('users', newU);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
-    return newU;
+    const response = await api.admin.create<AdminUser>('users', newU);
+    setAdminUsers((prev) => [...prev, response.data]);
+    return response.data;
   };
 
   const updateAdminUser = async (id: string, partial: Partial<AdminUser>): Promise<void> => {
-    setAdminUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...partial } : u)));
-    try {
-      await api.admin.update('users', id, partial);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<AdminUser>('users', id, partial);
+    setAdminUsers((prev) => prev.map((user) => (user.id === id ? response.data : user)));
   };
 
   const deleteAdminUser = async (id: string): Promise<void> => {
-    setAdminUsers((prev) => prev.filter((u) => u.id !== id));
-    try {
-      await api.admin.delete('users', id);
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('users', id);
+    setAdminUsers((prev) => prev.filter((user) => user.id !== id));
   };
 
   const resetToDefaults = async () => {

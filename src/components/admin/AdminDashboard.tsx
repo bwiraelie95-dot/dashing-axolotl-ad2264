@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../translations/translations';
 import {
@@ -175,10 +175,31 @@ export const AdminDashboard: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsDraft, setSettingsDraft] = useState<SiteSettings>(siteSettings);
+
+  useEffect(() => {
+    setSettingsDraft(siteSettings);
+  }, [siteSettings]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const runAdminAction = async (action: () => Promise<unknown>, successMessage: string) => {
+    try {
+      await action();
+      showToast(successMessage);
+      return true;
+    } catch (error) {
+      showToast(
+        error instanceof ApiError
+          ? error.message
+          : (isFr ? 'L’opération n’a pas pu être enregistrée.' : 'The operation could not be saved.')
+      );
+      return false;
+    }
   };
 
   // Device File Upload Handler
@@ -907,8 +928,10 @@ export const AdminDashboard: React.FC = () => {
                           <button
                             onClick={() => {
                               if (window.confirm(isFr ? 'Supprimer ce programme ?' : 'Delete this program?')) {
-                                deleteProgram(prog.id);
-                                showToast(isFr ? 'Programme supprimé.' : 'Program deleted.');
+                                void runAdminAction(
+                                  () => deleteProgram(prog.id),
+                                  isFr ? 'Programme supprimé.' : 'Program deleted.'
+                                );
                               }
                             }}
                             className="p-1.5 rounded-lg bg-white border border-stone-200 text-stone-400 hover:text-rose-600 cursor-pointer"
@@ -1015,8 +1038,10 @@ export const AdminDashboard: React.FC = () => {
                         <button
                           onClick={() => {
                             if (window.confirm(isFr ? 'Supprimer cet article ?' : 'Delete this post?')) {
-                              deleteBlogPost(art.id);
-                              showToast(isFr ? 'Article supprimé.' : 'Post deleted.');
+                              void runAdminAction(
+                                () => deleteBlogPost(art.id),
+                                isFr ? 'Article supprimé.' : 'Post deleted.'
+                              );
                             }
                           }}
                           className="p-2 rounded-lg bg-white border border-stone-200 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
@@ -1099,8 +1124,10 @@ export const AdminDashboard: React.FC = () => {
                         <button
                           onClick={() => {
                             if (window.confirm(isFr ? 'Supprimer ce membre ?' : 'Delete this member?')) {
-                              deleteTeamMember(member.id);
-                              showToast(isFr ? 'Membre supprimé.' : 'Member deleted.');
+                              void runAdminAction(
+                                () => deleteTeamMember(member.id),
+                                isFr ? 'Membre supprimé.' : 'Member deleted.'
+                              );
                             }
                           }}
                           className="text-stone-400 hover:text-rose-600 cursor-pointer"
@@ -1243,8 +1270,10 @@ export const AdminDashboard: React.FC = () => {
                         <button
                           onClick={() => {
                             if (window.confirm(isFr ? 'Supprimer ce fichier ?' : 'Delete this file?')) {
-                              deleteMedia(item.id);
-                              showToast(isFr ? 'Fichier supprimé.' : 'File deleted.');
+                              void runAdminAction(
+                                () => deleteMedia(item.id),
+                                isFr ? 'Fichier supprimé.' : 'File deleted.'
+                              );
                             }
                           }}
                           className="text-stone-400 hover:text-rose-600 p-1 cursor-pointer"
@@ -1305,10 +1334,10 @@ export const AdminDashboard: React.FC = () => {
                       {!sub.read && (
                         <div className="pt-3 mt-3 border-t border-stone-200/60 flex justify-end">
                           <button
-                            onClick={() => {
-                              markContactRead(sub.id);
-                              showToast(isFr ? 'Marqué comme lu.' : 'Marked as read.');
-                            }}
+                            onClick={() => void runAdminAction(
+                              () => markContactRead(sub.id),
+                              isFr ? 'Marqué comme lu.' : 'Marked as read.'
+                            )}
                             className="text-xs font-label uppercase font-bold text-[#690C07] hover:text-[#520905] cursor-pointer"
                           >
                             {isFr ? 'Marquer comme lu' : 'Mark as Read'}
@@ -1411,8 +1440,10 @@ export const AdminDashboard: React.FC = () => {
                       <button
                         onClick={() => {
                           if (window.confirm(isFr ? 'Supprimer ce partenaire ?' : 'Delete partner?')) {
-                            deletePartner(p.id);
-                            showToast(isFr ? 'Partenaire supprimé.' : 'Partner deleted.');
+                            void runAdminAction(
+                              () => deletePartner(p.id),
+                              isFr ? 'Partenaire supprimé.' : 'Partner deleted.'
+                            );
                           }
                         }}
                         className="text-stone-400 hover:text-rose-600 p-1 cursor-pointer"
@@ -1444,8 +1475,9 @@ export const AdminDashboard: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={siteSettings.address}
-                      onChange={(e) => updateSiteSettings({ address: e.target.value })}
+                      value={settingsDraft.address}
+                      disabled={!isSuperAdmin || savingSettings}
+                      onChange={(e) => setSettingsDraft((previous) => ({ ...previous, address: e.target.value }))}
                       className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs"
                     />
                   </div>
@@ -1457,8 +1489,9 @@ export const AdminDashboard: React.FC = () => {
                       </label>
                       <input
                         type="email"
-                        value={siteSettings.email}
-                        onChange={(e) => updateSiteSettings({ email: e.target.value })}
+                        value={settingsDraft.email}
+                        disabled={!isSuperAdmin || savingSettings}
+                        onChange={(e) => setSettingsDraft((previous) => ({ ...previous, email: e.target.value }))}
                         className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs"
                       />
                     </div>
@@ -1468,8 +1501,9 @@ export const AdminDashboard: React.FC = () => {
                       </label>
                       <input
                         type="text"
-                        value={siteSettings.phone}
-                        onChange={(e) => updateSiteSettings({ phone: e.target.value })}
+                        value={settingsDraft.phone}
+                        disabled={!isSuperAdmin || savingSettings}
+                        onChange={(e) => setSettingsDraft((previous) => ({ ...previous, phone: e.target.value }))}
                         className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs"
                       />
                     </div>
@@ -1478,11 +1512,30 @@ export const AdminDashboard: React.FC = () => {
                   <div>
                     <button
                       type="button"
-                      onClick={() => showToast(isFr ? 'Paramètres enregistrés !' : 'Settings saved successfully!')}
-                      className="px-6 py-2.5 bg-[#690C07] hover:bg-[#520905] text-white rounded-lg text-xs font-label uppercase font-bold tracking-wider cursor-pointer"
+                      disabled={!isSuperAdmin || savingSettings}
+                      onClick={async () => {
+                        setSavingSettings(true);
+                        await runAdminAction(
+                          () => updateSiteSettings({
+                            address: settingsDraft.address,
+                            email: settingsDraft.email,
+                            phone: settingsDraft.phone
+                          }),
+                          isFr ? 'Paramètres enregistrés !' : 'Settings saved successfully!'
+                        );
+                        setSavingSettings(false);
+                      }}
+                      className="px-6 py-2.5 bg-[#690C07] hover:bg-[#520905] text-white rounded-lg text-xs font-label uppercase font-bold tracking-wider cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {isFr ? 'Enregistrer les Modifications' : 'Save Changes'}
+                      {savingSettings
+                        ? (isFr ? 'Enregistrement…' : 'Saving…')
+                        : (isFr ? 'Enregistrer les Modifications' : 'Save Changes')}
                     </button>
+                    {!isSuperAdmin && (
+                      <p className="mt-2 text-xs text-stone-500">
+                        {isFr ? 'Seul un super-administrateur peut modifier ces paramètres.' : 'Only a super-admin can change these settings.'}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1556,12 +1609,22 @@ export const AdminDashboard: React.FC = () => {
                         <span className="text-xs font-label uppercase font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
                           {u.role}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => setEditingUser({ ...u, password: '' })}
+                          className="text-stone-400 hover:text-[#690C07] p-1 cursor-pointer"
+                          title={isFr ? 'Modifier' : 'Edit'}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
                         {u.role !== 'super-admin' && (
                           <button
                             onClick={() => {
                               if (window.confirm(isFr ? 'Supprimer cet utilisateur ?' : 'Delete user?')) {
-                                deleteAdminUser(u.id);
-                                showToast(isFr ? 'Utilisateur supprimé.' : 'User deleted.');
+                                void runAdminAction(
+                                  () => deleteAdminUser(u.id),
+                                  isFr ? 'Utilisateur supprimé.' : 'User deleted.'
+                                );
                               }
                             }}
                             className="text-stone-400 hover:text-rose-600 p-1 cursor-pointer"
@@ -1668,6 +1731,84 @@ export const AdminDashboard: React.FC = () => {
                   ? (isFr ? 'Mise à jour…' : 'Updating…')
                   : (isFr ? 'Mettre à jour le mot de passe' : 'Update password')}
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-xl rounded-3xl border border-stone-200 bg-white p-6 shadow-2xl sm:p-8">
+            <div className="mb-6 flex items-center justify-between border-b border-stone-100 pb-4">
+              <h3 className="font-display text-lg font-bold text-stone-900">
+                {adminUsers.some((user) => user.id === editingUser.id)
+                  ? (isFr ? 'Modifier l’utilisateur' : 'Edit administrator')
+                  : (isFr ? 'Créer un utilisateur' : 'Create administrator')}
+              </h3>
+              <button type="button" onClick={() => setEditingUser(null)} className="p-1 text-stone-400 hover:text-stone-700">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form
+              className="space-y-4 text-xs font-label"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                const exists = adminUsers.some((user) => user.id === editingUser.id);
+                const payload = { ...editingUser };
+                if (exists && !payload.password) delete payload.password;
+                const saved = await runAdminAction(
+                  () => exists ? updateAdminUser(editingUser.id, payload) : addAdminUser(payload),
+                  isFr ? 'Utilisateur enregistré.' : 'Administrator saved.'
+                );
+                if (saved) setEditingUser(null);
+              }}
+            >
+              <div>
+                <label className="mb-1 block font-bold uppercase text-stone-700">{isFr ? 'Nom' : 'Name'}</label>
+                <input required minLength={2} value={editingUser.name} onChange={(event) => setEditingUser({ ...editingUser, name: event.target.value })} className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2.5" />
+              </div>
+              <div>
+                <label className="mb-1 block font-bold uppercase text-stone-700">Email</label>
+                <input required type="email" value={editingUser.email} onChange={(event) => setEditingUser({ ...editingUser, email: event.target.value })} className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2.5" />
+              </div>
+              <div>
+                <label className="mb-1 block font-bold uppercase text-stone-700">
+                  {adminUsers.some((user) => user.id === editingUser.id)
+                    ? (isFr ? 'Nouveau mot de passe (facultatif)' : 'New password (optional)')
+                    : (isFr ? 'Mot de passe initial' : 'Initial password')}
+                </label>
+                <input
+                  type="password"
+                  minLength={12}
+                  required={!adminUsers.some((user) => user.id === editingUser.id)}
+                  autoComplete="new-password"
+                  value={editingUser.password || ''}
+                  onChange={(event) => setEditingUser({ ...editingUser, password: event.target.value })}
+                  className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2.5"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block font-bold uppercase text-stone-700">{isFr ? 'Rôle' : 'Role'}</label>
+                  <select value={editingUser.role} onChange={(event) => setEditingUser({ ...editingUser, role: event.target.value })} className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2.5">
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                    <option value="super-admin">Super-admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block font-bold uppercase text-stone-700">Status</label>
+                  <select value={editingUser.status || 'active'} onChange={(event) => setEditingUser({ ...editingUser, status: event.target.value as AdminUser['status'] })} className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2.5">
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 border-t border-stone-100 pt-4">
+                <button type="button" onClick={() => setEditingUser(null)} className="rounded-lg bg-stone-100 px-4 py-2 font-bold">{isFr ? 'Annuler' : 'Cancel'}</button>
+                <button type="submit" className="rounded-lg bg-[#690C07] px-5 py-2 font-bold text-white hover:bg-[#520905]">{isFr ? 'Enregistrer' : 'Save'}</button>
+              </div>
             </form>
           </div>
         </div>
@@ -1990,11 +2131,14 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                updateBlogPost(editingArticle);
-                showToast(isFr ? 'Article sauvegardé !' : 'Article saved!');
-                setEditingArticle(null);
+                const exists = articles.some((article) => article.id === editingArticle.id);
+                const saved = await runAdminAction(
+                  () => exists ? updateBlogPost(editingArticle) : addBlogPost(editingArticle),
+                  isFr ? 'Article sauvegardé !' : 'Article saved!'
+                );
+                if (saved) setEditingArticle(null);
               }}
               className="space-y-4 text-xs font-label"
             >
@@ -2117,11 +2261,14 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                updateTeamMember(editingTeam);
-                showToast(isFr ? 'Profil mis à jour !' : 'Profile updated!');
-                setEditingTeam(null);
+                const exists = teamMembers.some((member) => member.id === editingTeam.id);
+                const saved = await runAdminAction(
+                  () => exists ? updateTeamMember(editingTeam) : addTeamMember(editingTeam),
+                  isFr ? 'Profil mis à jour !' : 'Profile updated!'
+                );
+                if (saved) setEditingTeam(null);
               }}
               className="space-y-4 text-xs font-label"
             >

@@ -61,3 +61,9 @@ export async function requireSuperAdmin(request: NextRequest) {
   if (user.role !== 'super-admin') throw new ForbiddenError();
   return user;
 }
+
+export async function requireContentEditor(request: NextRequest) {
+  const user = await requireAdmin(request);
+  if (!['super-admin', 'admin', 'editor'].includes(user.role)) throw new ForbiddenError();
+  return user;
+}

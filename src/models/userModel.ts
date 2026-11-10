@@ -72,7 +72,10 @@ export const userModel = {
   },
 
   async create(data: Record<string, unknown>): Promise<SafeAdminUser> {
-    const password = String(data.password ?? randomUUID());
+    if (typeof data.password !== 'string' || data.password.length < 12) {
+      throw new Error('A secure initial password is required.');
+    }
+    const password = data.password;
     const user = await prisma.user.create({
       data: {
         externalId: typeof data.id === 'string' ? data.id : randomUUID(),
