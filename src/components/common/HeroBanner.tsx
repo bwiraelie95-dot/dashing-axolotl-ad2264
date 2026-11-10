@@ -201,7 +201,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         className={`relative w-full overflow-hidden bg-[#18181B] select-none ${
           fullBleed
             ? 'h-[66vh] min-h-[440px] max-h-[700px] sm:h-[70vh]'
-            : 'h-[540px] border-y border-[#232826]/20 sm:h-[500px] sm:border md:h-[470px] lg:h-[430px] xl:h-[460px] 2xl:h-[500px]'
+            : 'h-[540px] sm:h-[500px] md:h-[470px] lg:h-[430px] xl:h-[460px] 2xl:h-[500px]'
         }`}
         onMouseEnter={() => setInteractionPaused(true)}
         onMouseLeave={() => setInteractionPaused(false)}
@@ -330,16 +330,16 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
         {/* Explicit, keyboard-accessible carousel controls */}
         {total > 1 && (
-          <div className="absolute bottom-4 left-1/2 z-40 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1 rounded-full border border-white/20 bg-black/60 p-1.5 shadow-xl backdrop-blur-md sm:bottom-6 sm:gap-2">
+          <div className="absolute bottom-4 left-1/2 z-40 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 sm:bottom-6 sm:gap-3">
             <button
               type="button"
               onClick={handlePrev}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm hover:bg-black/55"
               aria-label={isFr ? 'Diapositive précédente' : 'Previous slide'}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
-            <div className="hidden items-center gap-1.5 sm:flex" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
+            <div className="flex items-center gap-2" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
               {slides.map((_, idx) => (
               <button
                 key={idx}
@@ -347,7 +347,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`cursor-pointer transition-all duration-300 ${
                   idx === currentIndex
-                    ? 'h-2.5 w-7 rounded-full bg-[#EFA62B] shadow-sm'
+                    ? 'h-2.5 w-2.5 scale-125 rounded-full bg-[#EFA62B] shadow-sm'
                     : 'h-2.5 w-2.5 rounded-full bg-white/50 hover:bg-white/90'
                 }`}
                 aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}
@@ -355,22 +355,18 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               />
               ))}
             </div>
-            <span className="min-w-10 text-center font-label text-[11px] font-bold text-white sm:hidden" aria-hidden="true">
-              {currentIndex + 1}/{total}
-            </span>
             <button
               type="button"
               onClick={handleNext}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm hover:bg-black/55"
               aria-label={isFr ? 'Diapositive suivante' : 'Next slide'}
             >
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
-            <span className="h-5 w-px bg-white/25" aria-hidden="true" />
             <button
               type="button"
               onClick={() => setUserPaused((paused) => !paused)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm hover:bg-black/55"
               aria-label={userPaused
                 ? (isFr ? 'Reprendre le défilement automatique' : 'Resume autoplay')
                 : (isFr ? 'Mettre le défilement automatique en pause' : 'Pause autoplay')}
