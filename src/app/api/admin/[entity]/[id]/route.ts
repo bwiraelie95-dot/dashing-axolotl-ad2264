@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
+import { requireAdmin, requireSuperAdmin } from '@/lib/auth';
 import { apiError, getRequestIp } from '@/lib/http';
 import { adminEntitySchema, entityPayloadSchema, idSchema } from '@/lib/validation';
 import { contentModel } from '@/models/contentModel';
@@ -19,8 +19,9 @@ async function routeParameters(context: RouteContext) {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    await requireAdmin(request);
     const { entity, id } = await routeParameters(context);
+    if (entity === 'users') await requireSuperAdmin(request);
+    else await requireAdmin(request);
     const item = entity === 'users' ? await userModel.findById(id) : await contentModel.findById(entity, id);
     if (!item) return NextResponse.json({ success: false, error: 'Élément introuvable.' }, { status: 404 });
     return NextResponse.json({ success: true, data: item });
@@ -31,8 +32,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const actor = await requireAdmin(request);
     const { entity, id } = await routeParameters(context);
+    const actor = entity === 'users' ? await requireSuperAdmin(request) : await requireAdmin(request);
     const payload = entityPayloadSchema.parse(await request.json());
     const item = entity === 'users' ? await userModel.update(id, payload) : await contentModel.update(entity, id, payload);
     if (!item) return NextResponse.json({ success: false, error: 'Élément introuvable.' }, { status: 404 });
@@ -53,8 +54,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const actor = await requireAdmin(request);
     const { entity, id } = await routeParameters(context);
+    const actor = entity === 'users' ? await requireSuperAdmin(request) : await requireAdmin(request);
     const deleted = entity === 'users' ? await userModel.delete(id) : await contentModel.delete(entity, id);
     if (!deleted) return NextResponse.json({ success: false, error: 'Élément introuvable.' }, { status: 404 });
 

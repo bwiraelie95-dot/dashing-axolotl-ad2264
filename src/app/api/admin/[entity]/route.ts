@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
+import { requireAdmin, requireSuperAdmin } from '@/lib/auth';
 import { apiError, getRequestIp } from '@/lib/http';
 import { adminEntitySchema, adminQuerySchema, entityPayloadSchema } from '@/lib/validation';
 import { contentModel } from '@/models/contentModel';
@@ -14,9 +14,10 @@ interface RouteContext {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    await requireAdmin(request);
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
+    if (entity === 'users') await requireSuperAdmin(request);
+    else await requireAdmin(request);
     const query = adminQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
 
     if (entity === 'users') {
@@ -40,9 +41,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const actor = await requireAdmin(request);
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
+    const actor = entity === 'users' ? await requireSuperAdmin(request) : await requireAdmin(request);
     const payload = entityPayloadSchema.parse(await request.json());
 
     const item = entity === 'users' ? await userModel.create(payload) : await contentModel.create(entity, payload);
