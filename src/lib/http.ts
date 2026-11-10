@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { ForbiddenError, UnauthorizedError } from '@/lib/auth';
 
+export class ConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ConflictError';
+  }
+}
+
 export function apiError(error: unknown) {
   if (error instanceof ZodError) {
     return NextResponse.json(
@@ -14,6 +21,9 @@ export function apiError(error: unknown) {
   }
   if (error instanceof ForbiddenError) {
     return NextResponse.json({ success: false, error: error.message }, { status: 403 });
+  }
+  if (error instanceof ConflictError) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 409 });
   }
   if (error instanceof Error && 'code' in error && error.code === 'P2002') {
     return NextResponse.json({ success: false, error: 'Cette valeur existe déjà.' }, { status: 409 });

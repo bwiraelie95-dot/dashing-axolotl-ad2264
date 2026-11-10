@@ -56,7 +56,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         undefined;
       return NextResponse.json(
         { success: true, data: await publicContentModel.getBanners(pageRoute) },
-        { headers: publicCacheHeaders }
+        { headers: { 'Cache-Control': 'no-store, max-age=0' } }
       );
     }
 

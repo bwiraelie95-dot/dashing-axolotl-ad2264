@@ -146,8 +146,7 @@ export const AdminDashboard: React.FC = () => {
     deleteAdminUser,
 
     dashboardStats,
-    refreshDashboardStats,
-    triggerActionLoading
+    refreshDashboardStats
   } = useApp();
 
   const isFr = language === 'fr';
@@ -169,6 +168,7 @@ export const AdminDashboard: React.FC = () => {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [savingBanner, setSavingBanner] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -720,16 +720,20 @@ export const AdminDashboard: React.FC = () => {
 
                             <div className="absolute top-3 right-3 flex items-center gap-1.5">
                               <button
-                                onClick={() => {
-                                  updateBanner(slide.id, {
-                                    active: !isActive,
-                                    isActive: !isActive
-                                  });
-                                  showToast(
-                                    isActive
-                                      ? (isFr ? 'Bannière désactivée (Brouillon).' : 'Banner set to Draft.')
-                                      : (isFr ? 'Bannière activée (En ligne).' : 'Banner published.')
-                                  );
+                                onClick={async () => {
+                                  try {
+                                    await updateBanner(slide.id, {
+                                      active: !isActive,
+                                      isActive: !isActive
+                                    });
+                                    showToast(
+                                      isActive
+                                        ? (isFr ? 'Bannière désactivée (Brouillon).' : 'Banner set to Draft.')
+                                        : (isFr ? 'Bannière activée (En ligne).' : 'Banner published.')
+                                    );
+                                  } catch (error) {
+                                    showToast(error instanceof ApiError ? error.message : (isFr ? 'La mise à jour a échoué.' : 'Update failed.'));
+                                  }
                                 }}
                                 className={`text-[10px] font-label uppercase px-2.5 py-1 rounded-full font-bold cursor-pointer transition-colors shadow-xs ${
                                   isActive
@@ -776,10 +780,14 @@ export const AdminDashboard: React.FC = () => {
                                 {isFr ? 'Ordre :' : 'Order:'}
                               </span>
                               <button
-                                onClick={() => {
+                                onClick={async () => {
                                   const newOrder = Math.max(1, slide.order - 1);
-                                  updateBanner(slide.id, { order: newOrder });
-                                  showToast(isFr ? `Ordre mis à jour : #${newOrder}` : `Order updated: #${newOrder}`);
+                                  try {
+                                    await updateBanner(slide.id, { order: newOrder });
+                                    showToast(isFr ? `Ordre mis à jour : #${newOrder}` : `Order updated: #${newOrder}`);
+                                  } catch (error) {
+                                    showToast(error instanceof ApiError ? error.message : (isFr ? 'Le changement d’ordre a échoué.' : 'Reordering failed.'));
+                                  }
                                 }}
                                 className="p-1 hover:bg-stone-100 rounded text-stone-700 cursor-pointer"
                                 title="Move Up"
@@ -790,10 +798,14 @@ export const AdminDashboard: React.FC = () => {
                                 {slide.order}
                               </span>
                               <button
-                                onClick={() => {
+                                onClick={async () => {
                                   const newOrder = slide.order + 1;
-                                  updateBanner(slide.id, { order: newOrder });
-                                  showToast(isFr ? `Ordre mis à jour : #${newOrder}` : `Order updated: #${newOrder}`);
+                                  try {
+                                    await updateBanner(slide.id, { order: newOrder });
+                                    showToast(isFr ? `Ordre mis à jour : #${newOrder}` : `Order updated: #${newOrder}`);
+                                  } catch (error) {
+                                    showToast(error instanceof ApiError ? error.message : (isFr ? 'Le changement d’ordre a échoué.' : 'Reordering failed.'));
+                                  }
                                 }}
                                 className="p-1 hover:bg-stone-100 rounded text-stone-700 cursor-pointer"
                                 title="Move Down"
@@ -811,10 +823,14 @@ export const AdminDashboard: React.FC = () => {
                                 <span>{isFr ? 'Modifier' : 'Edit'}</span>
                               </button>
                               <button
-                                onClick={() => {
+                                onClick={async () => {
                                   if (window.confirm(isFr ? 'Supprimer définitivement cette bannière ?' : 'Delete this banner slide?')) {
-                                    deleteBanner(slide.id);
-                                    showToast(isFr ? 'Bannière supprimée.' : 'Banner deleted.');
+                                    try {
+                                      await deleteBanner(slide.id);
+                                      showToast(isFr ? 'Bannière supprimée.' : 'Banner deleted.');
+                                    } catch (error) {
+                                      showToast(error instanceof ApiError ? error.message : (isFr ? 'La suppression a échoué.' : 'Deletion failed.'));
+                                    }
                                   }
                                 }}
                                 className="text-stone-400 hover:text-rose-600 transition-colors p-1 cursor-pointer"
@@ -1717,7 +1733,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const payload = {
                   ...editingBanner,
@@ -1726,13 +1742,18 @@ export const AdminDashboard: React.FC = () => {
                   isActive: editingBanner.active !== false,
                   active: editingBanner.active !== false
                 };
-                triggerActionLoading(
-                  isFr ? 'Enregistrement de la bannière...' : 'Saving banner...',
-                  isFr ? 'En attente d’une suite favorable...' : 'Awaiting confirmation...'
-                );
-                updateBanner(payload);
-                showToast(isFr ? 'Bannière enregistrée avec succès !' : 'Banner saved successfully!');
-                setEditingBanner(null);
+                setSavingBanner(true);
+                try {
+                  const alreadyExists = banners.some((banner) => banner.id === payload.id);
+                  if (alreadyExists) await updateBanner(payload);
+                  else await addBanner(payload);
+                  showToast(isFr ? 'Bannière enregistrée avec succès !' : 'Banner saved successfully!');
+                  setEditingBanner(null);
+                } catch (error) {
+                  showToast(error instanceof ApiError ? error.message : (isFr ? 'L’enregistrement a échoué.' : 'Save failed.'));
+                } finally {
+                  setSavingBanner(false);
+                }
               }}
               className="space-y-4 text-xs font-label"
             >
@@ -1943,10 +1964,11 @@ export const AdminDashboard: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#690C07] hover:bg-[#520905] text-white rounded-xl font-bold cursor-pointer shadow-xs flex items-center gap-2"
+                  disabled={savingBanner}
+                  className="px-6 py-2.5 bg-[#690C07] hover:bg-[#520905] text-white rounded-xl font-bold cursor-pointer shadow-xs flex items-center gap-2 disabled:cursor-wait disabled:opacity-60"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isFr ? 'Enregistrer la Bannière' : 'Save Banner'}</span>
+                  <span>{savingBanner ? (isFr ? 'Enregistrement…' : 'Saving…') : (isFr ? 'Enregistrer la Bannière' : 'Save Banner')}</span>
                 </button>
               </div>
             </form>

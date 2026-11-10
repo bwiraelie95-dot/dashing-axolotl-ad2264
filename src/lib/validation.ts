@@ -26,9 +26,52 @@ export type ContentEntity = z.infer<typeof contentEntitySchema>;
 export const adminEntitySchema = z.union([contentEntitySchema, z.literal('users')]);
 export type AdminEntity = z.infer<typeof adminEntitySchema>;
 
+export const idSchema = z.string().trim().min(1).max(191);
+
 export const entityPayloadSchema = z.record(z.string(), z.unknown());
 
-export const idSchema = z.string().trim().min(1).max(191);
+const bannerPayloadFields = {
+  id: idSchema.optional(),
+  pageRoute: z.string().trim().min(1).max(191),
+  titleEn: z.string().trim().min(2).max(255),
+  titleFr: z.string().trim().min(2).max(255),
+  subtitleEn: z.string().trim().max(5_000).optional().nullable(),
+  subtitleFr: z.string().trim().max(5_000).optional().nullable(),
+  imageUrl: z.string().trim().max(2_048).optional(),
+  image: z.string().trim().max(2_048).optional(),
+  ctaTextEn: z.string().trim().max(191).optional().nullable(),
+  ctaTextFr: z.string().trim().max(191).optional().nullable(),
+  ctaLink: z.string().trim().max(2_048).optional().nullable(),
+  altTextEn: z.string().trim().max(255).optional().nullable(),
+  altTextFr: z.string().trim().max(255).optional().nullable(),
+  order: z.coerce.number().int().min(0).max(10_000).optional(),
+  active: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  startDate: z.string().datetime().optional().nullable(),
+  endDate: z.string().datetime().optional().nullable()
+};
+
+export const bannerPayloadSchema = z
+  .object(bannerPayloadFields)
+  .passthrough()
+  .refine((data) => Boolean(data.imageUrl || data.image), {
+    message: 'Une image est requise pour la bannière.',
+    path: ['imageUrl']
+  })
+  .refine(
+    (data) => !data.startDate || !data.endDate || new Date(data.startDate) <= new Date(data.endDate),
+    { message: 'La date de fin doit être postérieure à la date de début.', path: ['endDate'] }
+  );
+
+export const bannerPatchSchema = z.object({
+  ...bannerPayloadFields,
+  pageRoute: bannerPayloadFields.pageRoute.optional(),
+  titleEn: bannerPayloadFields.titleEn.optional(),
+  titleFr: bannerPayloadFields.titleFr.optional()
+}).passthrough().refine(
+  (data) => !data.startDate || !data.endDate || new Date(data.startDate) <= new Date(data.endDate),
+  { message: 'La date de fin doit être postérieure à la date de début.', path: ['endDate'] }
+);
 
 export const adminQuerySchema = z.object({
   search: z.string().trim().max(200).optional(),

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import type { ContentEntity } from '@/lib/validation';
+import { ConflictError } from '@/lib/http';
 import { prisma } from '@/models/prisma/client';
 
 export interface ContentQuery {
@@ -122,6 +123,60 @@ function bool(data: Record<string, unknown>, keys: string[], fallback = false): 
   return fallback;
 }
 
+function normalizedBannerRoute(value: unknown): string {
+  const raw = typeof value === 'string' ? value.trim().toLowerCase() : '/';
+  if (!raw || raw === 'home' || raw === '/') return '/';
+  const withSlash = raw.startsWith('/') ? raw : `/${raw}`;
+  return withSlash.length > 1 ? withSlash.replace(/\/+$/, '') : withSlash;
+}
+
+function synchronizedBannerInput(data: Record<string, unknown>): Record<string, unknown> {
+  const normalized = { ...data };
+  if ('pageRoute' in data || 'page_assignment' in data) {
+    normalized.pageRoute = normalizedBannerRoute(data.pageRoute ?? data.page_assignment);
+  }
+  const requestedActive =
+    typeof data.isActive === 'boolean'
+      ? data.isActive
+      : typeof data.active === 'boolean'
+        ? data.active
+        : undefined;
+  if (requestedActive !== undefined) {
+    normalized.isActive = requestedActive;
+    normalized.active = requestedActive;
+  }
+  return normalized;
+}
+
+async function assertBannerPublicationLimit(
+  bannerDelegate: Pick<Prisma.TransactionClient['banner'], 'count'>,
+  data: Record<string, unknown>,
+  excludeExternalId?: string
+) {
+  if (!bool(data, ['isActive', 'active'], true)) return;
+
+  const pageRoute = normalizedBannerRoute(data.pageRoute ?? data.page_assignment);
+  const routeFilter = pageRoute === '/'
+    ? { OR: [{ pageRoute: '/' }, { pageRoute: 'home' }] }
+    : { pageRoute };
+  const count = await bannerDelegate.count({
+    where: {
+      ...routeFilter,
+      isActive: true,
+      ...(excludeExternalId ? { externalId: { not: excludeExternalId } } : {})
+    }
+  });
+  const maximum = pageRoute === '/' ? 8 : 1;
+
+  if (count >= maximum) {
+    throw new ConflictError(
+      pageRoute === '/'
+        ? 'La page d’accueil ne peut pas publier plus de huit bannières actives.'
+        : `La page ${pageRoute} possède déjà une bannière active.`
+    );
+  }
+}
+
 function date(data: Record<string, unknown>, keys: string[], fallback?: Date): Date | null {
   for (const key of keys) {
     const value = data[key];
@@ -219,15 +274,17 @@ function createData(entity: Exclude<ContentEntity, 'siteSettings'>, id: string, 
           metaTitleFr: data.metaTitleFr, metaDescEn: data.metaDescEn, metaDescFr: data.metaDescFr }),
         status: str(data, ['status'], 'draft'), orderIndex: num(data, ['order']) };
     }
-    case 'banners':
-      return { ...common, pageRoute: str(data, ['pageRoute', 'page_assignment'], '/'),
+    case 'banners': {
+      const banner = synchronizedBannerInput(data);
+      return { ...common, pageRoute: normalizedBannerRoute(banner.pageRoute),
         imageUrl: str(data, ['imageUrl', 'image']), titleEn: str(data, ['titleEn'], 'Banner'),
         titleFr: str(data, ['titleFr'], 'Bannière'), subtitleEn: nullable(data, ['subtitleEn']),
         subtitleFr: nullable(data, ['subtitleFr']), ctaTextEn: nullable(data, ['ctaTextEn']),
         ctaTextFr: nullable(data, ['ctaTextFr']), ctaLink: nullable(data, ['ctaLink']),
         altTextEn: nullable(data, ['altTextEn']), altTextFr: nullable(data, ['altTextFr']),
-        orderIndex: num(data, ['order']), isActive: bool(data, ['isActive', 'active'], true),
+        orderIndex: num(data, ['order']), isActive: bool(banner, ['isActive', 'active'], true),
         startDate: date(data, ['startDate']), endDate: date(data, ['endDate']) };
+    }
     case 'programs': {
       const titleEn = str(data, ['titleEn'], 'Program');
       return { ...common, slug: str(data, ['slug'], slugify(titleEn)), titleEn,
@@ -354,11 +411,36 @@ async function listRecords<T extends DomainRecord>(entity: ContentEntity): Promi
 async function createRecord<T extends DomainRecord>(entity: ContentEntity, input: Record<string, unknown>): Promise<T> {
   if (entity === 'siteSettings') return upsertSettings(input) as Promise<T>;
   const id = typeof input.id === 'string' && input.id.trim() ? input.id.trim() : randomUUID();
+  if (entity === 'banners') {
+    const bannerInput = synchronizedBannerInput(input);
+    return prisma.$transaction(async (transaction) => {
+      await assertBannerPublicationLimit(transaction.banner, bannerInput);
+      const record = await transaction.banner.create({
+        data: createData('banners', id, bannerInput) as Prisma.BannerUncheckedCreateInput
+      });
+      return toDomain<T>(record as unknown as DbRecord);
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
   const record = await delegateFor(entity).create({ data: createData(entity, id, input) });
   return toDomain<T>(record);
 }
 
 async function updateRecord<T extends DomainRecord>(entity: ContentEntity, id: string, patch: Record<string, unknown>): Promise<T | null> {
+  if (entity === 'banners') {
+    return prisma.$transaction(async (transaction) => {
+      const stored = await transaction.banner.findUnique({ where: { externalId: id } });
+      if (!stored) return null;
+      const current = toDomain<DomainRecord>(stored as unknown as DbRecord);
+      const merged = synchronizedBannerInput({ ...current, ...synchronizedBannerInput(patch), id });
+      await assertBannerPublicationLimit(transaction.banner, merged, id);
+      const { externalId: _externalId, ...data } = createData('banners', id, merged);
+      const record = await transaction.banner.update({
+        where: { externalId: id },
+        data: data as Prisma.BannerUncheckedUpdateInput
+      });
+      return toDomain<T>(record as unknown as DbRecord);
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
   const current = await contentModel.findById<DomainRecord>(entity, id);
   if (!current) return null;
   const merged = { ...current, ...patch, id };

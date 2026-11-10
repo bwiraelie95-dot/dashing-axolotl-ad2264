@@ -33,8 +33,14 @@ export const publicContentModel = {
   },
 
   async getBanners(pageRoute?: string) {
+    const now = Date.now();
     let banners = (await contentModel.list<Item>('banners')).filter(
-      (banner) => banner.active !== false && banner.isActive !== false
+      (banner) => {
+        if (banner.active === false || banner.isActive === false) return false;
+        const start = banner.startDate ? new Date(String(banner.startDate)).getTime() : null;
+        const end = banner.endDate ? new Date(String(banner.endDate)).getTime() : null;
+        return (!start || start <= now) && (!end || end >= now);
+      }
     );
 
     const rawPage = pageRoute?.trim().toLowerCase() ?? '';
@@ -55,7 +61,10 @@ export const publicContentModel = {
       });
     }
 
-    return banners.sort((a, b) => compareValues(a.order, b.order));
+    const ordered = banners.sort((a, b) => compareValues(a.order, b.order));
+    if (normalizedPage === '/') return ordered.slice(0, 8);
+    if (normalizedPage) return ordered.slice(0, 1);
+    return ordered;
   },
 
   async list(

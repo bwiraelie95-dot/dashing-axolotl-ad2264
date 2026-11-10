@@ -193,7 +193,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     <section
       ref={heroRef}
       className={`relative w-full ${
-        fullBleed ? 'px-0' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'
+        fullBleed ? 'px-0' : 'mx-auto max-w-[1600px] px-0 sm:px-4 lg:px-5'
       }`}
       aria-label={isFr ? 'Temps forts d’Africa Community Village' : 'Africa Community Village highlights'}
     >
@@ -201,7 +201,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         className={`relative w-full overflow-hidden bg-[#18181B] select-none ${
           fullBleed
             ? 'h-[66vh] min-h-[440px] max-h-[700px] sm:h-[70vh]'
-            : 'h-[62vh] min-h-[430px] max-h-[650px] rounded-[1.5rem] border border-white/30 shadow-[0_28px_80px_-38px_rgba(35,40,38,0.8)] sm:rounded-[2rem]'
+            : 'h-[540px] sm:h-[500px] md:h-[470px] lg:h-[430px] xl:h-[460px] 2xl:h-[500px]'
         }`}
         onMouseEnter={() => setInteractionPaused(true)}
         onMouseLeave={() => setInteractionPaused(false)}
@@ -330,47 +330,48 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
         {/* Explicit, keyboard-accessible carousel controls */}
         {total > 1 && (
-          <div className="absolute bottom-4 left-1/2 z-40 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1 rounded-full border border-white/20 bg-black/60 p-1.5 shadow-xl backdrop-blur-md sm:bottom-6 sm:gap-2">
+          <div className="absolute bottom-4 left-1/2 z-40 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 sm:bottom-6 sm:gap-3">
             <button
               type="button"
               onClick={handlePrev}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              className="grid h-9 w-9 shrink-0 place-items-center border-0 bg-transparent text-white/80 hover:text-white"
               aria-label={isFr ? 'Diapositive précédente' : 'Previous slide'}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
-            <div className="hidden items-center gap-1.5 sm:flex" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
+            <div className="flex items-center gap-2" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
               {slides.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setCurrentIndex(idx)}
-                className={`cursor-pointer transition-all duration-300 ${
-                  idx === currentIndex
-                    ? 'h-2.5 w-7 rounded-full bg-[#EFA62B] shadow-sm'
-                    : 'h-2.5 w-2.5 rounded-full bg-white/50 hover:bg-white/90'
-                }`}
-                aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}
-                aria-current={idx === currentIndex ? 'true' : undefined}
-              />
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  className="group grid h-11 w-6 cursor-pointer place-items-center border-0 bg-transparent p-0"
+                  aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}
+                  aria-current={idx === currentIndex ? 'true' : undefined}
+                >
+                  <span
+                    className={`block h-2.5 w-2.5 rounded-full border-0 transition-[background-color,opacity,transform] duration-300 ${
+                      idx === currentIndex
+                        ? 'scale-110 bg-[#EFA62B] opacity-100'
+                        : 'bg-white opacity-55 group-hover:opacity-90'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
               ))}
             </div>
-            <span className="min-w-10 text-center font-label text-[11px] font-bold text-white sm:hidden" aria-hidden="true">
-              {currentIndex + 1}/{total}
-            </span>
             <button
               type="button"
               onClick={handleNext}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              className="grid h-9 w-9 shrink-0 place-items-center border-0 bg-transparent text-white/80 hover:text-white"
               aria-label={isFr ? 'Diapositive suivante' : 'Next slide'}
             >
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
-            <span className="h-5 w-px bg-white/25" aria-hidden="true" />
             <button
               type="button"
               onClick={() => setUserPaused((paused) => !paused)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white hover:bg-white/15"
+              className="grid h-9 w-9 shrink-0 place-items-center border-0 bg-transparent text-white/80 hover:text-white"
               aria-label={userPaused
                 ? (isFr ? 'Reprendre le défilement automatique' : 'Resume autoplay')
                 : (isFr ? 'Mettre le défilement automatique en pause' : 'Pause autoplay')}

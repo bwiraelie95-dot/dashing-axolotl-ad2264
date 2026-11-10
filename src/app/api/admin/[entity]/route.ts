@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, requireSuperAdmin } from '@/lib/auth';
 import { apiError, getRequestIp } from '@/lib/http';
-import { adminEntitySchema, adminQuerySchema, entityPayloadSchema } from '@/lib/validation';
+import { adminEntitySchema, adminQuerySchema, bannerPayloadSchema, entityPayloadSchema } from '@/lib/validation';
 import { contentModel } from '@/models/contentModel';
 import { userModel } from '@/models/userModel';
 import { logAuditAction } from '@/models/auditModel';
@@ -44,7 +44,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
     const actor = entity === 'users' ? await requireSuperAdmin(request) : await requireAdmin(request);
-    const payload = entityPayloadSchema.parse(await request.json());
+    const body: unknown = await request.json();
+    const payload = entity === 'banners' ? bannerPayloadSchema.parse(body) : entityPayloadSchema.parse(body);
 
     const item = entity === 'users' ? await userModel.create(payload) : await contentModel.create(entity, payload);
     await logAuditAction(

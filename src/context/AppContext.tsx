@@ -454,6 +454,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
 
     if (routeGroup === '/admin' && (adminUser || getAuthToken())) {
       const adminResults = await Promise.allSettled([
+        api.admin.list<BannerSlide>('banners', { page: 1, limit: 100 }),
         api.admin.list<MediaItem>('media', { page: 1, limit: 100 }),
         api.admin.list<Donor>('donors', { page: 1, limit: 100 }),
         api.admin.list<ContactSubmission>('contactSubmissions', { page: 1, limit: 100 }),
@@ -461,7 +462,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
         api.admin.list<AdminUser>('users', { page: 1, limit: 100 }),
         api.admin.list<PageItem>('pages', { page: 1, limit: 100 })
       ]);
-      const [mediaResult, donorsResult, contactsResult, auditsResult, usersResult, pagesResult] = adminResults;
+      const [bannersResult, mediaResult, donorsResult, contactsResult, auditsResult, usersResult, pagesResult] = adminResults;
+      if (bannersResult.status === 'fulfilled') setBanners(bannersResult.value.data);
       if (mediaResult.status === 'fulfilled') setMedia(mediaResult.value.data);
       if (donorsResult.status === 'fulfilled') setDonors(donorsResult.value.data);
       if (contactsResult.status === 'fulfilled') setContactSubmissions(contactsResult.value.data);
@@ -541,34 +543,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
 
   // Device file upload
   const uploadMedia = async (files: File[] | FileList): Promise<MediaItem[]> => {
-    try {
-      const res = await api.upload.uploadFiles(files);
-      if (res.success && res.data) {
-        const items = Array.isArray(res.data) ? res.data : [res.data];
-        setMedia((prev) => [...items, ...prev]);
-        return items;
-      }
-    } catch (err) {
-      console.warn('Server upload failed, converting to object URL for demo session:', err);
+    const res = await api.upload.uploadFiles(files);
+    if (!res.success || !res.data) {
+      throw new Error('Le serveur n’a pas confirmé le téléversement.');
     }
-
-    // Local fallback for smooth offline demonstration
-    const localItems: MediaItem[] = Array.from(files).map((file) => {
-      const fakeUrl = URL.createObjectURL(file);
-      return {
-        id: `med_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        title: file.name,
-        filename: file.name,
-        url: fakeUrl,
-        type: file.type.includes('pdf') ? 'pdf' : file.type.includes('video') ? 'video' : 'image',
-        mimeType: file.type || 'image/jpeg',
-        sizeBytes: file.size,
-        altTextEn: file.name,
-        altTextFr: file.name
-      };
-    });
-    setMedia((prev) => [...localItems, ...prev]);
-    return localItems;
+    const items = Array.isArray(res.data) ? res.data : [res.data];
+    setMedia((prev) => [...items, ...prev]);
+    return items;
   };
 
   // CRUD Implementations with API + Local optimistic update
@@ -625,35 +606,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
             ...b,
             id: `banner_${Date.now()}`
           };
-    setBanners((prev) => [...prev, newB]);
-    try {
-      await api.admin.create('banners', newB);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.create<BannerSlide>('banners', newB);
+    setBanners((prev) => [...prev, response.data]);
+    await refreshDashboardStats();
   };
 
   const updateBanner = async (arg1: BannerSlide | string, partial?: Partial<BannerSlide>): Promise<void> => {
     const id = typeof arg1 === 'string' ? arg1 : arg1.id;
     const patch = typeof arg1 === 'string' ? partial || {} : arg1;
-    setBanners((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
-    try {
-      await api.admin.update('banners', id, patch);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    const response = await api.admin.update<BannerSlide>('banners', id, patch);
+    setBanners((prev) => prev.map((banner) => (banner.id === id ? response.data : banner)));
+    await refreshDashboardStats();
   };
 
   const deleteBanner = async (id: string): Promise<void> => {
-    setBanners((prev) => prev.filter((b) => b.id !== id));
-    try {
-      await api.admin.delete('banners', id);
-      refreshDashboardStats();
-    } catch (e) {
-      console.warn('API sync deferred:', e);
-    }
+    await api.admin.delete('banners', id);
+    setBanners((prev) => prev.filter((banner) => banner.id !== id));
+    await refreshDashboardStats();
   };
 
   // Programs
