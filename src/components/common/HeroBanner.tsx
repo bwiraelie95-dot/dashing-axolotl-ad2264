@@ -334,31 +334,36 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm hover:bg-black/55"
+              className="grid h-9 w-9 shrink-0 place-items-center border-0 bg-transparent text-white/80 hover:text-white"
               aria-label={isFr ? 'Diapositive précédente' : 'Previous slide'}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
             <div className="flex items-center gap-2" aria-label={isFr ? 'Choisir une diapositive' : 'Choose a slide'}>
               {slides.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setCurrentIndex(idx)}
-                className={`cursor-pointer transition-all duration-300 ${
-                  idx === currentIndex
-                    ? 'h-2.5 w-2.5 scale-125 rounded-full bg-[#EFA62B] shadow-sm'
-                    : 'h-2.5 w-2.5 rounded-full bg-white/50 hover:bg-white/90'
-                }`}
-                aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}
-                aria-current={idx === currentIndex ? 'true' : undefined}
-              />
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  className="group grid h-11 w-6 cursor-pointer place-items-center border-0 bg-transparent p-0"
+                  aria-label={isFr ? `Aller à la diapositive ${idx + 1}` : `Go to slide ${idx + 1}`}
+                  aria-current={idx === currentIndex ? 'true' : undefined}
+                >
+                  <span
+                    className={`block h-2.5 w-2.5 rounded-full border-0 transition-[background-color,opacity,transform] duration-300 ${
+                      idx === currentIndex
+                        ? 'scale-110 bg-[#EFA62B] opacity-100'
+                        : 'bg-white opacity-55 group-hover:opacity-90'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
               ))}
             </div>
             <button
               type="button"
               onClick={handleNext}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm hover:bg-black/55"
+              className="grid h-9 w-9 shrink-0 place-items-center border-0 bg-transparent text-white/80 hover:text-white"
               aria-label={isFr ? 'Diapositive suivante' : 'Next slide'}
             >
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -366,7 +371,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             <button
               type="button"
               onClick={() => setUserPaused((paused) => !paused)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/35 text-white shadow-sm backdrop-blur-sm hover:bg-black/55"
+              className="grid h-9 w-9 shrink-0 place-items-center border-0 bg-transparent text-white/80 hover:text-white"
               aria-label={userPaused
                 ? (isFr ? 'Reprendre le défilement automatique' : 'Resume autoplay')
                 : (isFr ? 'Mettre le défilement automatique en pause' : 'Pause autoplay')}
