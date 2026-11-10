@@ -78,9 +78,9 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="w-full pb-16 sm:pb-20">
-      <Container as="section" className="pt-4 sm:pt-6 lg:pt-8">
+      <section className="pt-2 sm:pt-3 lg:pt-4">
         <BannerCarousel pageRoute="/" fullBleed={false} />
-      </Container>
+      </section>
 
       {dataState.error && (
         <Container className="mt-6">

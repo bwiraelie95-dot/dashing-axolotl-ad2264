@@ -193,7 +193,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     <section
       ref={heroRef}
       className={`relative w-full ${
-        fullBleed ? 'px-0' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'
+        fullBleed ? 'px-0' : 'mx-auto max-w-[1600px] px-0 sm:px-4 lg:px-5'
       }`}
       aria-label={isFr ? 'Temps forts d’Africa Community Village' : 'Africa Community Village highlights'}
     >
@@ -201,7 +201,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         className={`relative w-full overflow-hidden bg-[#18181B] select-none ${
           fullBleed
             ? 'h-[66vh] min-h-[440px] max-h-[700px] sm:h-[70vh]'
-            : 'h-[62vh] min-h-[430px] max-h-[650px] rounded-[1.5rem] border border-white/30 shadow-[0_28px_80px_-38px_rgba(35,40,38,0.8)] sm:rounded-[2rem]'
+            : 'h-[540px] border-y border-[#232826]/20 sm:h-[500px] sm:border md:h-[470px] lg:h-[430px] xl:h-[460px] 2xl:h-[500px]'
         }`}
         onMouseEnter={() => setInteractionPaused(true)}
         onMouseLeave={() => setInteractionPaused(false)}
