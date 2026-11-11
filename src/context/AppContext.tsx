@@ -26,6 +26,7 @@ import {
 } from '../types';
 import { fallbackBanners, fallbackSiteSettings } from '../data/fallbackData';
 import { api, ApiError, getAuthToken } from '../services/api';
+import { resolveLanguagePreference } from '../lib/language';
 
 export interface AppContextType {
   language: Language;
@@ -162,8 +163,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode; initialRoute?: s
   const [language, setLanguageState] = useState<Language>('fr');
 
   useEffect(() => {
-    const saved = localStorage.getItem('acv_lang');
-    if (saved === 'fr' || saved === 'en') setLanguageState(saved);
+    const preferredLanguage = resolveLanguagePreference({
+      stored: localStorage.getItem('acv_lang'),
+      cookie: document.cookie,
+      navigatorLanguages: navigator.languages?.length ? navigator.languages : [navigator.language]
+    });
+
+    setLanguageState(preferredLanguage);
+    localStorage.setItem('acv_lang', preferredLanguage);
+    document.documentElement.lang = preferredLanguage;
+    document.cookie = `acv_lang=${preferredLanguage}; path=/; max-age=31536000; samesite=lax`;
   }, []);
 
   const setLanguage = (lang: Language) => {

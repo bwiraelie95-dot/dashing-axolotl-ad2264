@@ -26,6 +26,13 @@ d'une séquence sans trou.
 
 ## Déploiement Netlify / Loopia
 
-Définir les mêmes variables dans Netlify et autoriser l'adresse sortante utilisée par l'hébergement chez
-Loopia. Utiliser TLS si le serveur MySQL l'exige. Les migrations sont idempotentes et les objets avancés sont
-réinstallés proprement par `npm run db:deploy`.
+Définir les mêmes variables dans Netlify et utiliser TLS si le serveur MySQL l'exige. Les migrations sont
+idempotentes et les objets avancés sont réinstallés proprement par `npm run db:deploy`.
+
+Attention : les adresses sortantes des fonctions Netlify changent par défaut, alors que Loopia autorise un
+hôte/IP par utilisateur MySQL. Une liste d'autorisation stable exige Netlify Private Connectivity (Enterprise)
+ou un backend disposant d'une IP sortante fixe. L'hôte `%` de Loopia fonctionnerait techniquement mais expose la
+base à Internet et n'est pas recommandé. Voir `docs/CRUD-DIAGNOSTIC.md` avant la mise en production.
+
+Après configuration, vérifier la connexion avec `/api/health`, puis lancer le test réversible avec
+`CRUD_SMOKE_CONFIRM=yes npm run test:crud` depuis un environnement autorisé à joindre la base.
