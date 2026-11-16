@@ -2,7 +2,7 @@ import { hash } from 'bcryptjs';
 import type { ContentEntity } from '../src/lib/validation';
 import { contentModel } from '../src/models/contentModel';
 import { prisma } from '../src/models/prisma/client';
-import { initialFieldNotes, initialPolicyDocuments } from '../src/data/mockData';
+import { initialFieldNotes, initialPolicyDocuments } from './contentSeedData';
 import {
   seedArticles,
   seedAuditLogs,

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-container":"#d18d08","on-primary-container":"#f57463","surface-container-high":"#e5e9e6","on-secondary-container":"#006b7b","secondary-fixed":"#a8edff","secondary-container":"#96e9fe","primary-fixed-dim":"#ffb4a9","on-surface-variant":"#57423e","surface-container":"#eaefeb","secondary-fixed-dim":"#7fd3e6","outline-variant":"#dec0bb","on-secondary-fixed":"#001f25","on-error-container":"#93000a","surface-container-highest":"#dfe4e0","surface-container-lowest":"#ffffff","surface":"#f6faf7","inverse-primary":"#ffb4a9","background":"#f6faf7","inverse-on-surface":"#edf2ee","on-secondary-fixed-variant":"#004e5b","tertiary":"#2c1a00","secondary":"#006878","error-container":"#ffdad6","surface-container-low":"#f0f5f1","on-tertiary-fixed":"#291800","on-secondary":"#ffffff","error":"#ba1a1a","inverse-surface":"#2c312f","surface-variant":"#dfe4e0","tertiary-fixed-dim":"#ffb94e","on-tertiary-fixed-variant":"#624000","surface-dim":"#d7dbd8","surface-bright":"#f6faf7","on-primary-fixed-variant":"#852219","on-primary":"#ffffff","primary-fixed":"#ffdad5","primary-container":"#690c07","surface-tint":"#a63a2d","tertiary-container":"#482d00","on-tertiary":"#ffffff","outline":"#8b716d","on-surface":"#181d1b","primary":"#450000","on-primary-fixed":"#410000","tertiary-fixed":"#ffddb2","on-background":"#181d1b","on-error":"#ffffff"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"space-sm":"0.5rem","space-xs":"0.25rem",gutter:"1.5rem","space-lg":"1.5rem","space-md":"1rem","space-xl":"2.5rem",margin:"1.5rem"},fontFamily:{"eyebrow":["Inter"],"body-sm":["Inter"],"headline-sm":["Inter"],"body-lg":["Inter"],"headline-lg":["Inter"],"label-sm":["Inter"],"display-mobile":["Inter"],"label-md":["Inter"],"body-md":["Inter"],"headline-md":["Inter"],"headline-lg-mobile":["Inter"],"display":["Inter"]},fontSize:{"eyebrow":["0.75rem",{lineHeight:"1.5",letterSpacing:"0.12em",fontWeight:"700"}],"body-sm":["0.875rem",{lineHeight:"1.5",fontWeight:"400"}],"headline-sm":["1.25rem",{lineHeight:"1.4",letterSpacing:"-0.01em",fontWeight:"600"}],"body-lg":["1.125rem",{lineHeight:"1.65",fontWeight:"400"}],"headline-lg":["2.5rem",{lineHeight:"1.2",letterSpacing:"-0.025em",fontWeight:"700"}],"label-sm":["0.75rem",{lineHeight:"1.4",fontWeight:"600"}],"display-mobile":["2.25rem",{lineHeight:"1.15",letterSpacing:"-0.025em",fontWeight:"800"}],"label-md":["0.875rem",{lineHeight:"1.4",fontWeight:"600"}],"body-md":["1rem",{lineHeight:"1.6",fontWeight:"400"}],"headline-md":["1.75rem",{lineHeight:"1.3",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg-mobile":["1.875rem",{lineHeight:"1.25",letterSpacing:"-0.02em",fontWeight:"700"}],"display":["3.5rem",{lineHeight:"1.1",letterSpacing:"-0.03em",fontWeight:"800"}]}}}}</script>
+<style>
+:root{--header-height:104px}html{scroll-padding-top:var(--header-height)}main{padding-top:var(--header-height)}
+.header-inner{height:var(--header-height);max-width:1440px;padding:0 40px;gap:32px}
+.main-navigation{display:flex;align-items:center;gap:24px;white-space:nowrap;font-size:14px}
+.header-inner>div:first-child>div>span:first-child{font-size:18px}
+#menu-toggle{display:none;min-width:44px;min-height:44px;border-radius:10px;color:#690c07}
+.hero{min-height:640px;height:auto}.hero-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1000ms ease;pointer-events:none}.hero-slide.is-active{opacity:1}
+.hero-controls{display:flex;align-items:center;gap:4px;padding-top:24px;color:white}.hero-controls button{min-width:44px;min-height:44px;border-radius:999px}.hero-controls button:hover{background:#ffffff20}.hero-dot span{display:block;width:8px;height:6px;margin:auto;border-radius:999px;background:#ffffff70;transition:width .3s}.hero-dot[aria-pressed="true"] span{width:28px;background:#EFA62B}#hero-pause{padding:0 12px;font-size:12px}
+:where(a,button):focus-visible{outline:3px solid #EFA62B;outline-offset:3px}
+@media(max-width:1279px){:root{--header-height:88px}.header-inner{padding:0 80px 0 24px;gap:20px}.main-navigation{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;padding:24px;box-shadow:0 14px 20px #0001;align-items:stretch;white-space:normal;max-height:calc(100dvh - var(--header-height));overflow:auto}.main-navigation.is-open{display:flex;flex-direction:column;gap:16px}.main-navigation .group>div{position:static;display:flex;box-shadow:none;margin-top:8px}#menu-toggle{display:block;position:absolute;right:20px;top:22px}}
+@media(min-width:1280px){.main-navigation .group:focus-within>div{display:flex}}
+@media(max-width:639px){:root{--header-height:80px}.header-inner{padding-left:16px;padding-right:64px;gap:8px}.header-inner>div:first-child{gap:8px;min-width:0}.header-inner>div:first-child>div>span:first-child{font-size:14px;max-width:180px}.header-inner>div:first-child>div>span:last-child{font-size:9px}.header-inner>div:first-child img{max-width:32px}#menu-toggle{right:12px;top:18px}.hero{min-height:680px}.hero-controls{gap:0}}
+@media(prefers-reduced-motion:reduce){.hero-slide,.hero-dot span{transition:none}}
+</style>
+</head><body class="bg-surface font-body-md text-on-surface antialiased"><header id="site-header" class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="header-inner max-w-7xl mx-auto flex items-center justify-between"><div class="flex items-center gap-3 shrink-0"><img alt="Logo ACV" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrA7b-sH6zHsc8DvBvRnV50iLzTFBqTpYqxMITfMwi1TnkdCHcvYajqfpdNoKvUp8-N2f5O3ICCwmK1b_CzNnmYy9O59vPNoUC12BQ_acfCOnQ8HQiP8-PbtPbdau0TqQFWSh_UMP-FDke8d4mdBH8uj3J45QtDD1OdqWkZGAKpJ36U2zEzSBQLWc71Bs3TxqWYl0fzhsW5Iw6UFf7uLVBGBSIyvQMHG81JottfNy-sc"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary leading-tight tracking-tight">Africa Community Village</span><span class="font-eyebrow text-eyebrow text-outline uppercase tracking-wider">ACV · Goma, DRC</span></div></div><nav id="main-navigation" aria-label="Navigation principale" class="main-navigation" data-active-classes="text-primary-container font-headline-sm border-b-2 border-primary-container"><a aria-current="page" class="transition-colors py-2 text-primary-container font-headline-sm border-b-2 border-primary-container" data-path="accueil" href="#">Accueil</a><div class="relative group py-2"><button class="flex items-center gap-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span>À propos</span><span class="material-symbols-outlined text-[16px]">expand_more</span></button><div class="absolute left-0 top-full hidden group-hover:flex flex-col bg-surface-container-lowest rounded-xl shadow-[0_12px_28px_-4px_rgba(68,48,30,0.08)] py-2 min-w-[200px] z-50"><a class="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="notre-histoire" href="#">Notre histoire</a><a class="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="notre-equipe" href="#">Notre équipe</a><a class="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="gouvernance" href="#">Gouvernance</a><a class="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="notes-de-terrain" href="#">Notes de terrain</a></div></div><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="programmes" href="#">Programmes</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="notre-approche" href="#">Notre approche</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="journal" href="#">Journal</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="contact" href="#">Contact</a></nav><div class="flex items-center gap-3 shrink-0"><a class="hidden sm:inline-flex items-center gap-2 bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md px-5 py-2.5 rounded-xl transition-all shadow-[0_4px_16px_-2px_rgba(68,48,30,0.05)] active:scale-98" data-path="faire-un-don" href="#"><span class="material-symbols-outlined text-[18px]">favorite</span><span>Faire un don</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><button type="button" id="menu-toggle" aria-controls="main-navigation" aria-expanded="false" aria-label="Ouvrir le menu">☰</button></header><main class="w-full bg-surface"><div class="flex flex-col w-full">
+<!-- SECTION 1: Grand Hero Photographique -->
+<section id="hero" aria-label="Photos de la communauté ACV" aria-roledescription="carrousel" class="hero relative w-full h-[640px] flex items-end overflow-hidden">
+<div class="absolute inset-0" id="hero-slides"><img class="hero-slide is-active" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYwRbrJKRQ3CobFoji4x06iRzXRtw2GQQwYJdeVAifd6tLoTukoRVDVbvPZM2t-ziZ1PO_1BtTWMvSw3wzkV-pxD1iwTfI0qmbwpbL44Rn6RS73MLGwFoOcDABHlyafW3t4VEbWDw-Ojr9KLoYKt4Nk7zVDDnWEAI6fh9hE0T7K-sZ6mNIRKRWughzBBIvPe_BV5hU1nabmTqAHL6gbnWkR39r1y6c6R30jo-pQOg" alt="" aria-hidden="true" fetchpriority="high"/>
+<img class="hero-slide" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP2muwB54BpZjvTNWwwpWtdtgAP_lseid6-rOP6bw7NqvxuH8BceTVI6q54sKBYzoRsxPjYkA5OxSmUP16m506PHn49ksc4uAmxdf3jMw-PO9jpWzMMs1KBTqSniYV0lYb49vHRuJ_RUXkvr51mDSWeCIF1CKao7kUpHTlDjVQXMIzCT4NfF2gFFxWOnBX-N5TTa-e8urMUDZ-6iiwkbyjb2-Qx4tBDHdmJIUiKqc" alt="" aria-hidden="true" loading="eager"/>
+<img class="hero-slide" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPob2d-opxKAWMwOZoX9nz8iV6_a2aqvJXWpZ5edXQ1LLmdqZ0sJzXzwFFFFNOrRKuGUcajgGIEEVbVjk3_fLnHgPwaxFXnMA1Nw15_W7W_GrW7apmSsu6zgD6wYrXDgqmXh6kRMYAwcYab_G1ewa7bFeNtAkbqcgok3kllgZhIgOZ9G06ok-WwybbuuH4iZlbib9RswQwBT0VIpKUrqI5KL2R3VEdl3ejLS8gDaU" alt="" aria-hidden="true" loading="eager"/>
+<img class="hero-slide" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkCWtgi5GorQ8qExfo7b19HsQsyVvvi-esnLeI5lh2XjstWJgieQ49d9sFOTsFJh3sFrNiACfVYGHFMHstqnjM49yIt-zwlKjSzhNNMIaHHWiDBTDM3o8u92Qx-UMKYz1pzNCWE4wDRhBtA6Ujm902xPhsD93Y_Go1iGr3PFiX1Zypsq0iv3oTK-j0wiV8aMkdXNwlsUteIuFX_hB66oR1uk4Nu0sc0vh-pF1sFrI" alt="" aria-hidden="true" loading="eager"/>
+<img class="hero-slide" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT1Z7886-qhfQ3v5XxyMr0RoxeLLYnXkcS8Sw0q83aWwzrNjFp4i-jy7DYbgzR7ZLhZ1vx6YnS8yiu-wWecQtDVPDiqi8jTE2YYeXhAYieJ_ha0P3gM0fmzjE38P3mT0eWIzYRIErEGWM6pwjDV2dBjjEuVUQyy1G03hF0L0GRTeguVO2a2SqLO9q3m7n9PwQStG3p7hVRO0Ta3sEcFBxEzTcnTZ8fiLktfl2Ul4o" alt="" aria-hidden="true" loading="eager"/></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent"></div>
+<div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-28">
+<div class="max-w-3xl flex flex-col items-start gap-4">
+<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-on-tertiary-container text-tertiary font-eyebrow text-eyebrow tracking-widest shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span>GOMA · NORD-KIVU · RDC</span>
+</div>
+<h1 class="font-display text-headline-lg lg:text-display text-surface-container-lowest tracking-tight leading-[1.08] text-balance">
+          Ensemble, faisons grandir l’avenir des communautés.
+        </h1>
+<p class="font-body-lg text-body-lg text-surface-container-high/90 max-w-2xl leading-relaxed">
+          Portée par la jeunesse congolaise au pied des Virunga, une approche intégrée pour l'autonomie, la régénération écologique et la prospérité locale.
+        </p>
+<div class="flex flex-wrap items-center gap-4 pt-3 w-full sm:w-auto">
+<a class="inline-flex items-center justify-center gap-2 bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md px-7 py-3.5 rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95" href="#piliers">
+<span>Découvrir nos programmes</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="inline-flex items-center justify-center gap-2 bg-surface-container-lowest/15 backdrop-blur-md hover:bg-surface-container-lowest/25 text-surface-container-lowest font-label-md text-label-md px-7 py-3.5 rounded-xl transition-all duration-200" href="#don">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed-dim">favorite</span>
+<span>Faire un don</span>
+</a>
+</div>
+<div class="hero-controls" aria-label="Commandes du carrousel"><button type="button" id="hero-prev" aria-label="Photo précédente">‹</button><button type="button" class="hero-dot" aria-label="Afficher la photo 1 sur 5" aria-pressed="true" data-slide="0"><span></span></button><button type="button" class="hero-dot" aria-label="Afficher la photo 2 sur 5" aria-pressed="false" data-slide="1"><span></span></button><button type="button" class="hero-dot" aria-label="Afficher la photo 3 sur 5" aria-pressed="false" data-slide="2"><span></span></button><button type="button" class="hero-dot" aria-label="Afficher la photo 4 sur 5" aria-pressed="false" data-slide="3"><span></span></button><button type="button" class="hero-dot" aria-label="Afficher la photo 5 sur 5" aria-pressed="false" data-slide="4"><span></span></button><button type="button" id="hero-next" aria-label="Photo suivante">›</button><button type="button" id="hero-pause" aria-label="Mettre le défilement en pause">Pause</button></div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: Présentation de l'organisation -->
+<section class="w-full py-24 bg-surface">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+<!-- Colonne Gauche -->
+<div class="lg:col-span-6 flex flex-col items-start gap-6">
+<div class="flex items-center gap-3">
+<span class="font-eyebrow text-eyebrow text-on-tertiary-container tracking-widest uppercase">QUI SOMMES-NOUS</span>
+<div class="h-0.5 w-12 bg-on-tertiary-container rounded-full"></div>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-tight">
+            Né à Goma. Bâti pour durer.
+          </h2>
+<div class="flex flex-col gap-4 text-on-surface-variant font-body-md text-body-md leading-relaxed">
+<p>
+              Face aux défis chroniques du Nord-Kivu, des jeunes leaders congolais ont choisi de ne plus subir. Africa Community Village (ACV) est né d'un constat d'évidence : la pérennité naît de l'ancrage profond, de la dignité partagée et de la fin du paternalisme humanitaire.
+            </p>
+<p>
+              Nous plaçons les villageois et la jeunesse au cœur de leur propre trajectoire. En valorisant les savoirs agroécologiques locaux, les dynamiques coopératives et l’intégrité écologique du paysage des Virunga, nous tissons un modèle communautaire autosuffisant et souverain.
+            </p>
+</div>
+<div class="pt-2">
+<a class="inline-flex items-center gap-3 bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md px-6 py-3 rounded-xl transition-all duration-200 group" href="#">
+<span>Découvrir nos origines</span>
+<span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Colonne Droite -->
+<div class="lg:col-span-6 relative">
+<div class="relative mx-auto max-w-lg lg:max-w-none">
+<div class="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 w-full h-full rounded-3xl bg-secondary/10 transform rotate-1 pointer-events-none"></div>
+<div class="relative rounded-3xl overflow-hidden shadow-xl bg-surface-container-low aspect-[4/3]">
+<img class="w-full h-full object-cover" data-alt="Young Congolese community leaders and agrarian specialists smiling together while inspecting a nursery of indigenous trees with Lake Kivu and mount Nyiragongo landscape in warm morning light, candid, authentic, dignified" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP2muwB54BpZjvTNWwwpWtdtgAP_lseid6-rOP6bw7NqvxuH8BceTVI6q54sKBYzoRsxPjYkA5OxSmUP16m506PHn49ksc4uAmxdf3jMw-PO9jpWzMMs1KBTqSniYV0lYb49vHRuJ_RUXkvr51mDSWeCIF1CKao7kUpHTlDjVQXMIzCT4NfF2gFFxWOnBX-N5TTa-e8urMUDZ-6iiwkbyjb2-Qx4tBDHdmJIUiKqc"/>
+</div>
+<!-- Carte flottante -->
+<div class="absolute -bottom-6 left-4 sm:left-8 right-4 sm:right-auto bg-surface-container-lowest/95 backdrop-blur-md p-5 rounded-2xl shadow-xl flex items-center gap-4 max-w-sm">
+<div class="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Impact direct</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Ancrage communautaire 100% local</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: Cinq Piliers Communautaires -->
+<section class="w-full py-24 bg-surface-container-low" id="piliers">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center gap-3">
+<span class="font-eyebrow text-eyebrow text-secondary uppercase tracking-widest">NOTRE MODÈLE INTÉGRÉ</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Cinq piliers, un modèle communautaire
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Une réponse holistique aux réalités vécues pour transformer durablement le quotidien des villages du Nord-Kivu.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Pilier 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-on-tertiary-container/15 text-tertiary-container flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[28px]">school</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Éducation et jeunesse</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Mentorat, bourses de scolarisation rurale, ateliers de leadership éthique et clubs scientifiques pour révéler le potentiel des jeunes filles et garçons.
+            </p>
+</div>
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary group-hover:text-primary-container transition-colors" href="#">
+<span>En savoir plus</span>
+<span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<!-- Pilier 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-secondary/15 text-secondary flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[28px]">park</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Nature et biodiversité</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Pépinières villageoises et corridors de reboisement d’essences indigènes en périphérie du parc national des Virunga, cogérés avec les gardiens coutumiers.
+            </p>
+</div>
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-secondary group-hover:text-on-secondary-container transition-colors" href="#">
+<span>En savoir plus</span>
+<span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<!-- Pilier 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-tertiary-fixed-dim/30 text-tertiary flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[28px]">eco</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Agriculture & sécurité alimentaire</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Agroécologie paysanne, banques de semences reproductibles, compostage volcanique et souveraineté alimentaire face aux crises économiques récurrentes.
+            </p>
+</div>
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary group-hover:text-primary-container transition-colors" href="#">
+<span>En savoir plus</span>
+<span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<!-- Pilier 4 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-error-container/50 text-primary-container flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[28px]">favorite</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Santé et bien-être</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Accès équitable à l'eau potable via des bornes gravitaires, éducation sanitaire d'urgence et soutien psychosocial aux familles vulnérables.
+            </p>
+</div>
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary group-hover:text-primary-container transition-colors" href="#">
+<span>En savoir plus</span>
+<span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<!-- Pilier 5 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between group md:col-span-2 lg:col-span-1">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-secondary-fixed/50 text-secondary flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[28px]">storefront</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Autonomisation socio-économique</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Coopératives d'épargne villageoise (AVEC), ateliers de formation aux métiers de l’énergie propre, valorisation de l'artisanat textile et maraîcher local.
+            </p>
+</div>
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-secondary group-hover:text-on-secondary-container transition-colors" href="#">
+<span>En savoir plus</span>
+<span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: Mission et impact (Grand panneau bordeaux) -->
+<section class="w-full py-16 px-4 sm:px-6 lg:px-8 bg-surface">
+<div class="max-w-7xl mx-auto bg-primary-container text-on-primary rounded-[28px] p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
+<!-- Decorative background pattern -->
+<div class="absolute -right-24 -bottom-24 w-96 h-96 rounded-full bg-primary/40 blur-3xl pointer-events-none"></div>
+<div class="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-on-tertiary-container/10 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
+<span class="material-symbols-outlined text-tertiary-fixed text-[44px] mb-4 opacity-90">format_quote</span>
+<blockquote class="font-headline-md sm:font-headline-lg text-headline-md sm:text-headline-lg font-bold leading-tight mb-12 text-balance text-surface-container-lowest">
+          « Quand les jeunes prennent l’initiative, les communautés se transforment. Quand les communautés prospèrent, l’Afrique s’élève. »
+        </blockquote>
+<!-- Ligne de compteurs -->
+<div class="w-full grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-y border-on-primary/15 mb-8">
+<div class="flex flex-col items-center">
+<span class="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">120+</span>
+<span class="font-body-sm text-body-sm text-primary-fixed mt-2">Jeunes formés & accompagnés</span>
+</div>
+<div class="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
+<span class="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">5</span>
+<span class="font-body-sm text-body-sm text-primary-fixed mt-2">Piliers d'intervention coordonnés</span>
+</div>
+<div class="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
+<span class="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">12</span>
+<span class="font-body-sm text-body-sm text-primary-fixed mt-2">Partenariats communautaires</span>
+</div>
+<div class="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
+<span class="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">4</span>
+<span class="font-body-sm text-body-sm text-primary-fixed mt-2">Initiatives phares pérennisées</span>
+</div>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm text-primary-fixed/80">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed">verified</span>
+<span>Données de terrain certifiées ACV · Mise à jour 2024</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: Récits de terrain (Journal) -->
+<section class="w-full py-24 bg-surface">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
+<div class="flex flex-col gap-2">
+<span class="font-eyebrow text-eyebrow text-on-tertiary-container uppercase tracking-widest">RÉCITS DE TERRAIN</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">La voix de nos villages</h2>
+</div>
+<a class="inline-flex items-center gap-2 text-primary font-label-md text-label-md hover:underline shrink-0" href="#">
+<span>Voir tout le journal</span>
+<span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Récit 1 -->
+<article class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+<div class="relative h-56 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Young Congolese community volunteers planting indigenous tree saplings in fertile dark volcanic soil near Goma with lush green rolling hills in background under soft golden daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPob2d-opxKAWMwOZoX9nz8iV6_a2aqvJXWpZ5edXQ1LLmdqZ0sJzXzwFFFFNOrRKuGUcajgGIEEVbVjk3_fLnHgPwaxFXnMA1Nw15_W7W_GrW7apmSsu6zgD6wYrXDgqmXh6kRMYAwcYab_G1ewa7bFeNtAkbqcgok3kllgZhIgOZ9G06ok-WwybbuuH4iZlbib9RswQwBT0VIpKUrqI5KL2R3VEdl3ejLS8gDaU"/>
+<span class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
+              #Reboisement
+            </span>
+</div>
+<div class="p-6 flex flex-col flex-1 justify-between">
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-3">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>14 Mars 2024</span>
+<span>•</span>
+<span>4 min de lecture</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors mb-3">
+                5 000 arbres plantés : le rempart vert des collines de Sake
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-6">
+                Récit d'une journée de mobilisation intergénérationnelle où aînés et lycéens ont uni leurs efforts pour restaurer les versants fragilisés par l'érosion.
+              </p>
+</div>
+<div class="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold">
+<span>Lire le carnet</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</article>
+<!-- Récit 2 -->
+<article class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+<div class="relative h-56 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Congolese youth learning organic vegetable farming techniques with handmade agricultural tools in community garden with volcanic stone beds in North Kivu" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkCWtgi5GorQ8qExfo7b19HsQsyVvvi-esnLeI5lh2XjstWJgieQ49d9sFOTsFJh3sFrNiACfVYGHFMHstqnjM49yIt-zwlKjSzhNNMIaHHWiDBTDM3o8u92Qx-UMKYz1pzNCWE4wDRhBtA6Ujm902xPhsD93Y_Go1iGr3PFiX1Zypsq0iv3oTK-j0wiV8aMkdXNwlsUteIuFX_hB66oR1uk4Nu0sc0vh-pF1sFrI"/>
+<span class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-on-tertiary-container font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
+              #Agroécologie
+            </span>
+</div>
+<div class="p-6 flex flex-col flex-1 justify-between">
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-3">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>28 Février 2024</span>
+<span>•</span>
+<span>5 min de lecture</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors mb-3">
+                De la cendre à la récolte : l'art du maraîchage volcanique
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-6">
+                Comment les coopératives de femmes de Kibumba transforment la roche volcanique en jardins maraîchers abondants et résilients aux aléas climatiques.
+              </p>
+</div>
+<div class="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold">
+<span>Lire le carnet</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</article>
+<!-- Récit 3 -->
+<article class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+<div class="relative h-56 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="African girls and youth leaders participating in a community workshop, writing notes and collaborating around wooden table in sunlit classroom in Goma DRC" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT1Z7886-qhfQ3v5XxyMr0RoxeLLYnXkcS8Sw0q83aWwzrNjFp4i-jy7DYbgzR7ZLhZ1vx6YnS8yiu-wWecQtDVPDiqi8jTE2YYeXhAYieJ_ha0P3gM0fmzjE38P3mT0eWIzYRIErEGWM6pwjDV2dBjjEuVUQyy1G03hF0L0GRTeguVO2a2SqLO9q3m7n9PwQStG3p7hVRO0Ta3sEcFBxEzTcnTZ8fiLktfl2Ul4o"/>
+<span class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
+              #Jeunesse
+            </span>
+</div>
+<div class="p-6 flex flex-col flex-1 justify-between">
+<div>
+<div class="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-3">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>12 Janvier 2024</span>
+<span>•</span>
+<span>3 min de lecture</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors mb-3">
+                Créer son propre emploi à 20 ans : la promotion Horizon
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-6">
+                Immersion au sein de notre premier incubateur solidaire où douze micro-projets portés par des jeunes ruraux ont vu le jour ce trimestre.
+              </p>
+</div>
+<div class="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold">
+<span>Lire le carnet</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</article>
+</div>
+</div>
+</section>
+<!-- SECTION 6: Agir avec nous -->
+<section class="w-full py-24 bg-surface-container">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-xl mx-auto mb-16 flex flex-col items-center gap-3">
+<span class="font-eyebrow text-eyebrow text-on-tertiary-container uppercase tracking-widest">IMPLICATION CITOYENNE</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Prendre part au changement
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Chaque voix, chaque talent et chaque engagement compte pour accélérer la transition durable au Kivu.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Option 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined text-[24px]">group_add</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Devenir bénévole</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Rejoignez nos brigades d'action directe à Goma, Sake ou Rutshuru : animation d'ateliers, reboisement ou accompagnement logistique sur le terrain.
+            </p>
+</div>
+<a class="inline-flex items-center justify-center bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-3 px-5 rounded-xl transition-colors" href="#">
+            Postuler sur le terrain
+          </a>
+</div>
+<!-- Option 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center text-secondary mb-6">
+<span class="material-symbols-outlined text-[24px]">handshake</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Devenir partenaire</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Universités, fondations philanthropiques, ONG partenaires : co-construisons des programmes durables régis par la co-responsabilité et l'intégrité.
+            </p>
+</div>
+<a class="inline-flex items-center justify-center bg-secondary hover:bg-on-secondary-container text-on-secondary font-label-md text-label-md py-3 px-5 rounded-xl transition-colors" href="#">
+            Initier un partenariat
+          </a>
+</div>
+<!-- Option 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-xl bg-primary-container/15 flex items-center justify-center text-primary-container mb-6">
+<span class="material-symbols-outlined text-[24px]">volunteer_activism</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">Soutenir nos actions</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
+              Participez directement au financement d'arbres, de kits scolaires ruraux ou de matériel pour les pépinières villageoises avec un suivi transparent.
+            </p>
+</div>
+<a class="inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md py-3 px-5 rounded-xl transition-colors shadow-sm" href="#don">
+            Faire un don direct
+          </a>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 7: Bloc de don interactif -->
+<section class="w-full py-24 bg-surface" id="don">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="rounded-[28px] overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-12 bg-surface-container-lowest">
+<!-- Colonne Gauche (Bordeaux ACV) -->
+<div class="lg:col-span-5 bg-primary-container text-on-primary p-8 sm:p-12 lg:p-14 flex flex-col justify-between relative">
+<div class="relative z-10 flex flex-col gap-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest/15 text-tertiary-fixed font-eyebrow text-eyebrow tracking-wider w-max">
+              SOUTIEN DIRECT & SOUVERAIN
+            </div>
+<h2 class="font-headline-lg text-headline-lg font-bold text-surface-container-lowest leading-tight">
+              Votre don agit directement sur le terrain
+            </h2>
+<p class="font-body-md text-body-md text-primary-fixed leading-relaxed">
+              Chez ACV, 92% de vos contributions sont alloués aux activités concrètes menées dans les villages du Nord-Kivu. Aucun intermédiaire bureaucratique.
+            </p>
+<ul class="flex flex-col gap-4 pt-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary-fixed text-[20px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-sm text-body-sm text-surface-container-lowest">Transparence totale et comptes publiés semestriellement.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary-fixed text-[20px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-sm text-body-sm text-surface-container-lowest">Gestion intégrale par des acteurs locaux engagés à Goma.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary-fixed text-[20px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-sm text-body-sm text-surface-container-lowest">Impact mesuré et rapport photographique remis aux donateurs.</span>
+</li>
+</ul>
+</div>
+<div class="relative z-10 pt-8 mt-8 border-t border-on-primary/15 flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary-fixed text-[28px]">shield</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-surface-container-lowest">Plateforme certifiée et sécurisée</span>
+<span class="font-body-sm text-body-sm text-primary-fixed text-xs">Paiement chiffré SSL 256 bits</span>
+</div>
+</div>
+</div>
+<!-- Colonne Droite (Formulaire interactif) -->
+<div class="lg:col-span-7 p-8 sm:p-12 lg:p-14 bg-surface-container-low flex flex-col justify-center">
+<!-- Fréquence de don -->
+<div class="flex bg-surface-container p-1 rounded-xl mb-8 max-w-sm">
+<button class="flex-1 py-2.5 text-center font-label-md text-label-md rounded-lg bg-surface-container-lowest text-on-surface shadow-sm transition-all" id="btn-once" type="button">
+              Don ponctuel
+            </button>
+<button class="flex-1 py-2.5 text-center font-label-md text-label-md rounded-lg text-on-surface-variant hover:text-on-surface transition-all" id="btn-monthly" type="button">
+              Don mensuel
+            </button>
+</div>
+<!-- Montants de don -->
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-outline mb-3 block">Sélectionnez un montant</label>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+<button class="amount-btn py-3.5 px-4 rounded-xl bg-surface-container-lowest text-on-surface font-headline-sm text-headline-sm font-bold shadow-sm hover:bg-surface-container-high transition-all" data-amount="25" type="button">
+              25 $
+            </button>
+<button class="amount-btn active relative py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-headline-sm text-headline-sm font-bold shadow-md transition-all" data-amount="50" type="button">
+              50 $
+              <span class="absolute -top-2.5 right-2 bg-on-tertiary-container text-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full tracking-tight">Populaire</span>
+</button>
+<button class="amount-btn py-3.5 px-4 rounded-xl bg-surface-container-lowest text-on-surface font-headline-sm text-headline-sm font-bold shadow-sm hover:bg-surface-container-high transition-all" data-amount="100" type="button">
+              100 $
+            </button>
+<button class="amount-btn py-3.5 px-4 rounded-xl bg-surface-container-lowest text-on-surface font-headline-sm text-headline-sm font-bold shadow-sm hover:bg-surface-container-high transition-all" data-amount="250" type="button">
+              250 $
+            </button>
+</div>
+<!-- Montant personnalisé -->
+<div class="relative mb-6">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 font-headline-sm text-headline-sm text-on-surface-variant font-bold">$</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-outline/70 focus:outline-none focus:ring-2 focus:ring-secondary transition-all" id="custom-amount" placeholder="Autre montant libre" type="number"/>
+</div>
+<!-- Choix du pilier -->
+<div class="mb-8">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-outline mb-2 block" for="project-select">
+              Attribuer mon don à une priorité
+            </label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest py-3.5 px-4 rounded-xl font-body-md text-body-md text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-secondary transition-all cursor-pointer" id="project-select">
+<option value="urgent">Où le besoin est le plus urgent (Tous piliers)</option>
+<option value="nature">Nature & Reboisement des Virunga</option>
+<option value="agri">Agroécologie & Souveraineté alimentaire</option>
+<option value="jeunesse">Bourses & Éducation rurale</option>
+<option value="sante">Eau propre & Santé communautaire</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Bouton de validation -->
+<button class="w-full py-4 px-6 rounded-xl bg-primary-container hover:bg-primary text-on-primary font-headline-sm text-headline-sm font-bold shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:scale-98 flex items-center justify-center gap-2" id="submit-donation" type="button">
+<span class="material-symbols-outlined text-[22px]">favorite</span>
+<span id="donate-label">Faire un don de 50 $</span>
+</button>
+<div class="mt-4 flex items-center justify-between text-outline text-xs">
+<span>Reçu fiscal immédiat par email</span>
+<span>Déductible d'impôt selon juridiction</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  (function() {
+    let currentAmount = 50;
+    const amountBtns = document.querySelectorAll('.amount-btn');
+    const customAmountInput = document.getElementById('custom-amount');
+    const donateLabel = document.getElementById('donate-label');
+    const btnOnce = document.getElementById('btn-once');
+    const btnMonthly = document.getElementById('btn-monthly');
+
+    function updateLabel() {
+      donateLabel.textContent = `Faire un don de ${currentAmount} $`;
+    }
+
+    amountBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        amountBtns.forEach(b => {
+          b.classList.remove('bg-primary-container', 'text-on-primary', 'active');
+          b.classList.add('bg-surface-container-lowest', 'text-on-surface');
+        });
+        btn.classList.add('bg-primary-container', 'text-on-primary', 'active');
+        btn.classList.remove('bg-surface-container-lowest', 'text-on-surface');
+
+        currentAmount = btn.getAttribute('data-amount');
+        if (customAmountInput) customAmountInput.value = '';
+        updateLabel();
+      });
+    });
+
+    if (customAmountInput) {
+      customAmountInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val && parseInt(val) > 0) {
+          amountBtns.forEach(b => {
+            b.classList.remove('bg-primary-container', 'text-on-primary', 'active');
+            b.classList.add('bg-surface-container-lowest', 'text-on-surface');
+          });
+          currentAmount = val;
+          updateLabel();
+        }
+      });
+    }
+
+    if (btnOnce && btnMonthly) {
+      btnOnce.addEventListener('click', () => {
+        btnOnce.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm');
+        btnOnce.classList.remove('text-on-surface-variant');
+        btnMonthly.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm');
+        btnMonthly.classList.add('text-on-surface-variant');
+      });
+
+      btnMonthly.addEventListener('click', () => {
+        btnMonthly.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm');
+        btnMonthly.classList.remove('text-on-surface-variant');
+        btnOnce.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm');
+        btnOnce.classList.add('text-on-surface-variant');
+      });
+    }
+  })();
+</script></main><footer class="w-full bg-inverse-surface text-inverse-on-surface relative"><div class="h-1.5 w-full bg-gradient-to-r from-primary-container via-on-tertiary-container to-secondary"></div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"><div class="flex flex-col gap-4"><div class="flex items-center gap-2"><span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold tracking-tight">Africa Community Village</span></div><p class="font-body-sm text-body-sm text-surface-dim leading-relaxed">Ancrage communautaire, souveraineté et résilience au cœur de Goma et du Nord-Kivu. Bâtir un futur durable par et pour les communautés locales.</p><span class="font-label-sm text-label-sm text-tertiary-fixed-dim uppercase tracking-wider">Nord-Kivu · République Démocratique du Congo</span></div><div class="flex flex-col gap-3"><h3 class="font-headline-sm text-headline-sm text-surface-container-lowest">Organisation</h3><ul class="flex flex-col gap-2 font-body-sm text-body-sm text-surface-dim"><li><a class="hover:text-surface-container-lowest transition-colors" data-path="notre-histoire" href="#">Notre histoire</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="notre-equipe" href="#">Équipe</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="gouvernance" href="#">Gouvernance</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="rapport-impact" href="#">Rapport d'impact</a></li></ul></div><div class="flex flex-col gap-3"><h3 class="font-headline-sm text-headline-sm text-surface-container-lowest">Programmes</h3><ul class="flex flex-col gap-2 font-body-sm text-body-sm text-surface-dim"><li><a class="hover:text-surface-container-lowest transition-colors" data-path="programmes" href="#">Éducation & jeunesse</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="programmes" href="#">Nature & biodiversité</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="programmes" href="#">Agriculture régénérative</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="programmes" href="#">Santé communautaire</a></li><li><a class="hover:text-surface-container-lowest transition-colors" data-path="programmes" href="#">Autonomie & artisanat</a></li></ul></div><div class="flex flex-col gap-3"><h3 class="font-headline-sm text-headline-sm text-surface-container-lowest">Contact & Terrain</h3><div class="flex flex-col gap-2 font-body-sm text-body-sm text-surface-dim"><p>Goma, Nord-Kivu, RDC</p><p>contact@africacommunityvillage.org</p><div class="flex items-center gap-3 pt-2"><a aria-label="Localisation" class="w-8 h-8 rounded-full bg-inverse-surface/80 flex items-center justify-center text-surface-dim hover:text-surface-container-lowest hover:bg-surface-container-high/20 transition-all" href="#"><span class="material-symbols-outlined text-[18px]">pin_drop</span></a><a aria-label="Courriel" class="w-8 h-8 rounded-full bg-inverse-surface/80 flex items-center justify-center text-surface-dim hover:text-surface-container-lowest hover:bg-surface-container-high/20 transition-all" href="#"><span class="material-symbols-outlined text-[18px]">mail</span></a><a aria-label="Partager" class="w-8 h-8 rounded-full bg-inverse-surface/80 flex items-center justify-center text-surface-dim hover:text-surface-container-lowest hover:bg-surface-container-high/20 transition-all" href="#"><span class="material-symbols-outlined text-[18px]">share</span></a></div></div></div></div><div class="mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-body-sm text-body-sm text-surface-dim"><div class="flex flex-wrap items-center gap-6"><a class="hover:text-surface-container-lowest transition-colors" data-path="mentions-legales" href="#">Mentions légales</a><a class="hover:text-surface-container-lowest transition-colors" data-path="politique-confidentialite" href="#">Politique de confidentialité</a><a class="flex items-center gap-1 hover:text-secondary-fixed transition-colors" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">lock</span><span>Espace administration</span></a></div><p>© 2025 Africa Community Village. Tous droits réservés.</p></div></div></footer>
+<script>
+(() => {
+  const INTERVAL_MS = 5 * 60 * 1000; // Une photo toutes les cinq minutes.
+  const slides = [...document.querySelectorAll('.hero-slide')];
+  const dots = [...document.querySelectorAll('[data-slide]')];
+  const pause = document.getElementById('hero-pause');
+  let index = 0;
+  let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let timer;
+  function schedule() {
+    clearInterval(timer);
+    if (!paused && !document.hidden) timer = setInterval(() => show(index + 1), INTERVAL_MS);
+  }
+  function show(next) {
+    index = (next + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
+    dots.forEach((dot, i) => dot.setAttribute('aria-pressed', String(i === index)));
+  }
+  function manual(next) { show(next); schedule(); }
+  document.getElementById('hero-prev').addEventListener('click', () => manual(index - 1));
+  document.getElementById('hero-next').addEventListener('click', () => manual(index + 1));
+  dots.forEach((dot, i) => dot.addEventListener('click', () => manual(i)));
+  function updatePause() {
+    pause.textContent = paused ? 'Reprendre' : 'Pause';
+    pause.setAttribute('aria-label', paused ? 'Reprendre le défilement' : 'Mettre le défilement en pause');
+  }
+  pause.addEventListener('click', () => { paused = !paused; updatePause(); schedule(); });
+  document.addEventListener('visibilitychange', schedule);
+  updatePause(); schedule();
+  const toggle = document.getElementById('menu-toggle');
+  const nav = document.getElementById('main-navigation');
+  function menu(open) {
+    nav.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+    toggle.textContent = open ? '×' : '☰';
+  }
+  toggle.addEventListener('click', () => menu(toggle.getAttribute('aria-expanded') !== 'true'));
+  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => menu(false)));
+  document.addEventListener('keydown', event => { if(event.key === 'Escape') { menu(false); toggle.focus(); } });
+})();
+</script>
+</body></html>

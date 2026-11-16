@@ -1,5 +1,7 @@
 # Diagnostic CRUD et déploiement ACV
 
+> Historique : les passages concernant l’interface décrivent le frontend retiré du dépôt. Le projet fournit désormais uniquement le backend ; voir `ARCHITECTURE.md`.
+
 ## Cause principale du faux CRUD
 
 L’ancienne interface appliquait les créations, modifications et suppressions dans l’état React avant la confirmation de l’API. Les erreurs réseau ou MySQL étaient ensuite interceptées avec un simple avertissement `API sync deferred`. L’écran donnait donc l’impression que l’action avait réussi alors que la base n’avait rien enregistré.
@@ -20,7 +22,6 @@ Une erreur API reste visible dans le back-office et ne produit plus de succès l
 ```powershell
 npm ci
 npm run lint
-npm run test:unit
 npm run build
 ```
 
@@ -68,7 +69,7 @@ Documentation officielle :
 - `DIRECT_URL` : compte de migration, jamais utilisé par le navigateur ;
 - `AUTH_SECRET` : valeur aléatoire d’au moins 32 caractères ;
 - `SEED_ADMIN_PASSWORD` : uniquement pour l’initialisation ;
-- `NEXT_PUBLIC_APP_URL` : URL publique canonique ;
+- `NEXT_PUBLIC_APP_URL` : URL du frontend externe pour les retours Stripe ;
 - `STRIPE_SECRET_KEY` : secret serveur si les dons Stripe sont activés.
 
 Ne jamais exposer ces valeurs dans Git, une capture, un ticket ou une variable préfixée `NEXT_PUBLIC_`.
