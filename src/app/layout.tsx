@@ -1,31 +1,15 @@
-import type { Metadata } from 'next';
-import { InitialSiteLoader } from '@/components/common/InitialSiteLoader';
-import '../index.css';
-
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import "./globals.css";
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
-  title: {
-    default: 'Africa Community Village',
-    template: '%s | Africa Community Village'
-  },
+  title: "Africa Community Village — Goma, RDC",
   description:
-    'Africa Community Village accompagne les communautés de l’Est de la République démocratique du Congo.',
-  icons: {
-    icon: '/assets/brand/acv-logo.jpeg',
-    apple: '/assets/brand/acv-logo.jpeg'
-  },
-  openGraph: {
-    title: 'Africa Community Village',
-    description: 'Une initiative communautaire portée par la jeunesse dans l’Est de la RDC.',
-    images: [{ url: '/assets/brand/acv-logo.jpeg', width: 1254, height: 1254, alt: 'Logo officiel ACV' }]
-  }
+    "Jeunesse, communautés et initiatives locales au cœur du Nord-Kivu.",
 };
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr">
-      <body>
-        <InitialSiteLoader />
+    <html lang="fr" data-scroll-behavior="smooth">
+      <body className="bg-surface font-body-md text-on-surface antialiased">
         {children}
       </body>
     </html>

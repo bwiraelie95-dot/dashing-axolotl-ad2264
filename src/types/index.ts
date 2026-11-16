@@ -1,26 +1,3 @@
-export type Language = 'en' | 'fr';
-
-export type PageRoute =
-  | '/'
-  | '/about'
-  | '/about/our-story'
-  | '/about/our-team'
-  | '/about/governance'
-  | '/about/field-notes'
-  | '/programs'
-  | '/programs/education-youth'
-  | '/programs/nature-biodiversity'
-  | '/programs/agriculture-food-security'
-  | '/programs/health-wellbeing'
-  | '/programs/socio-economic-empowerment'
-  | '/approach'
-  | '/blog'
-  | '/contact'
-  | '/donate'
-  | '/admin'
-  | '/admin/login'
-  | '/admin/dashboard';
-
 export interface BaseEntity {
   id?: string;
   createdAt?: string;
@@ -59,7 +36,7 @@ export interface PageItem extends BaseEntity {
 
 export interface BannerSlide extends BaseEntity {
   id: string;
-  pageRoute: PageRoute | string;
+  pageRoute: string;
   titleEn: string;
   titleFr: string;
   subtitleEn?: string;
@@ -386,14 +363,6 @@ export interface AuditLog extends BaseEntity {
   details: string;
   timestamp: string;
   ipAddress?: string;
-}
-
-export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error' | 'empty';
-
-export interface DataRequestState {
-  status: AsyncStatus;
-  error: string | null;
-  updatedAt: number | null;
 }
 
 export interface DashboardStats {
