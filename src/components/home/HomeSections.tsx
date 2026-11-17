@@ -315,7 +315,7 @@ export default function HomeSections() {
 
       <section id="journal" className="w-full py-24 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
             <div className="flex flex-col gap-2">
               <span className="font-eyebrow text-eyebrow text-on-tertiary-container uppercase tracking-widest">
                 RÉCITS DE TERRAIN
