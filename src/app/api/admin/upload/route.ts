@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { apiError, getRequestIp } from '@/lib/http';
 import { saveMediaFiles } from '@/models/mediaModel';
 import { logAuditAction } from '@/models/auditModel';
@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    const actor = await requireAdmin(request);
+    const actor = await requirePermission(request, 'media', 'manage');
     const formData = await request.formData();
     const files = formData.getAll('files').filter((entry): entry is File => entry instanceof File);
     if (!files.length) {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Maximum 10 fichiers par envoi.' }, { status: 400 });
     }
 
-    const media = await saveMediaFiles(files);
+    const media = await saveMediaFiles(files,actor.id);
     await logAuditAction(
       { userName: String(actor.email), userEmail: String(actor.email) },
       'upload',

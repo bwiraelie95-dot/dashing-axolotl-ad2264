@@ -122,18 +122,7 @@ export default function HeroCarousel() {
             >
               ›
             </button>
-            <button
-              type="button"
-              id="hero-pause"
-              onClick={() => setPaused(!paused)}
-              aria-label={
-                paused
-                  ? "Reprendre le défilement"
-                  : "Mettre le défilement en pause"
-              }
-            >
-              {paused ? "Reprendre" : "Pause"}
-            </button>
+
           </div>
         </div>
       </div>

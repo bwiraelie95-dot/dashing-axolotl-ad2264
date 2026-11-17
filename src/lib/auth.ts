@@ -1,3 +1,5 @@
+import { can } from '@/lib/permissions';
+import { prisma } from '@/models/prisma/client';
 import { jwtVerify, SignJWT } from 'jose';
 import type { NextRequest } from 'next/server';
 import { userModel, type SafeAdminUser } from '@/models/userModel';
@@ -18,14 +20,15 @@ export class ForbiddenError extends Error {
 
 function secret() {
   const value = process.env.AUTH_SECRET;
-  if (!value && process.env.NODE_ENV === 'production') {
+  if (!value || value.length < 32) {
     throw new Error('AUTH_SECRET must be configured in production.');
   }
-  return new TextEncoder().encode(value ?? 'acv-development-only-secret-change-me');
+  return new TextEncoder().encode(value);
 }
 
 export async function issueAuthToken(user: SafeAdminUser) {
-  return new SignJWT({ role: user.role, email: user.email })
+  const record = await prisma.user.findUniqueOrThrow({ where: { externalId: user.id } });
+  return new SignJWT({ role: user.role, email: user.email, version: record.sessionVersion })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(user.id)
     .setIssuedAt()
@@ -39,7 +42,7 @@ export async function verifyAuthToken(token: string) {
   return payload;
 }
 
-export async function requireAdmin(request: NextRequest) {
+export async function requireAdmin(request: Request) {
   const authorization = request.headers.get('authorization');
   if (!authorization?.startsWith('Bearer ')) throw new UnauthorizedError();
 
@@ -53,17 +56,25 @@ export async function requireAdmin(request: NextRequest) {
 
   const user = await userModel.findById(String(payload.sub));
   if (!user || user.status !== 'active') throw new UnauthorizedError('Compte inactif ou session invalide.');
+  const record = await prisma.user.findUniqueOrThrow({ where: { externalId: user.id } });
+  if (payload.version !== record.sessionVersion) throw new UnauthorizedError('Session révoquée.');
   return user;
 }
 
-export async function requireSuperAdmin(request: NextRequest) {
+export async function requireSuperAdmin(request: Request) {
   const user = await requireAdmin(request);
   if (user.role !== 'super-admin') throw new ForbiddenError();
   return user;
 }
 
-export async function requireContentEditor(request: NextRequest) {
+export async function requireContentEditor(request: Request) {
   const user = await requireAdmin(request);
   if (!['super-admin', 'admin', 'editor'].includes(user.role)) throw new ForbiddenError();
   return user;
+}
+
+export async function requirePermission(request: Request, entity: string, action: string) {
+ const user = await requireAdmin(request);
+ if (!can(user.role, entity, action)) throw new ForbiddenError();
+ return user;
 }
