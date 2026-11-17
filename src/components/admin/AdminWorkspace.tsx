@@ -9,44 +9,11 @@ import {
   SESSION_KEY,
   type AdminSession,
 } from "@/lib/client/admin-api";
-import RecordsPanel from "./RecordsPanel";
-import CmsPanel from "./CmsPanel";
-import { modules } from "@/lib/cms/modules";
-import { can } from "@/lib/permissions";
 import ResourcePanel from "./ResourcePanel";
 
 const navigation = [
   { id: "overview", label: "Vue d’ensemble", icon: "space_dashboard" },
-  ...Object.entries(modules)
-    .filter(([id]) =>
-      [
-        "articles",
-        "programs",
-        "team",
-        "stats",
-        "siteSettings",
-        "pages",
-        "users",
-      ].includes(id),
-    )
-    .map(([id, module]) => ({
-      id,
-      label: module.label,
-      icon:
-        (
-          {
-            articles: "article",
-            programs: "forest",
-            team: "groups",
-            stats: "monitoring",
-            siteSettings: "tune",
-            pages: "web",
-            users: "manage_accounts",
-          } as Record<string, string>
-        )[id] || "edit_document",
-    })),
-  { id: "media", label: "Médiathèque", icon: "image" },
-  { id: "auditLogs", label: "Journal d’audit", icon: "history" },
+  { id: "articles", label: "Articles & récits", icon: "article" },
   { id: "contactSubmissions", label: "Messages reçus", icon: "inbox" },
   { id: "donors", label: "Registre des dons", icon: "volunteer_activism" },
 ] as const;
@@ -122,24 +89,19 @@ export default function AdminWorkspace() {
         </Link>
         <p className="admin-eyebrow">PILOTER NOS ACTIONS</p>
         <nav aria-label="Navigation administration">
-          {navigation
-            .filter(
-              (item) =>
-                item.id === "overview" || can(user.role, item.id, "read"),
-            )
-            .map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setTab(item.id)}
-                aria-current={tab === item.id ? "page" : undefined}
-                className={tab === item.id ? "active" : ""}
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  {item.icon}
-                </span>
-                {item.label}
-              </button>
-            ))}
+          {navigation.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setTab(item.id)}
+              aria-current={tab === item.id ? "page" : undefined}
+              className={tab === item.id ? "active" : ""}
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                {item.icon}
+              </span>
+              {item.label}
+            </button>
+          ))}
         </nav>
         <div className="admin-sidebar-bottom">
           <p>
@@ -182,89 +144,13 @@ export default function AdminWorkspace() {
               Session active
             </span>
           </div>
-          {tab === "overview" && (
-            <section className="admin-welcome">
-              <div>
-                <p className="admin-eyebrow">VOTRE ESPACE ACV</p>
-                <h2>Bonjour, {user.name.split(" ")[0]}.</h2>
-                <p>
-                  Retrouvez vos contenus et les actions accessibles à votre
-                  rôle.
-                </p>
-                <span className="role-chip">
-                  {(
-                    {
-                      "super-admin": "Super administrateur",
-                      admin: "Administrateur",
-                      editor: "Éditeur",
-                      "program-manager": "Responsable programmes",
-                      "communication-manager": "Communication",
-                      "finance-manager": "Finance",
-                      viewer: "Consultation",
-                    } as Record<string, string>
-                  )[user.role] || user.role}
-                </span>
-              </div>
-              <div className="admin-shortcuts">
-                {[
-                  {
-                    id: "programs",
-                    label: "Gérer les programmes",
-                    icon: "forest",
-                  },
-                  {
-                    id: "articles",
-                    label: "Ouvrir le journal",
-                    icon: "article",
-                  },
-                  {
-                    id: "team",
-                    label: "Mettre à jour l’équipe",
-                    icon: "groups",
-                  },
-                  {
-                    id: "donors",
-                    label: "Consulter les dons",
-                    icon: "payments",
-                  },
-                ]
-                  .filter((item) => can(user.role, item.id, "read"))
-                  .map((item) => (
-                    <button key={item.id} onClick={() => setTab(item.id)}>
-                      <span
-                        className="material-symbols-outlined"
-                        aria-hidden="true"
-                      >
-                        {item.icon}
-                      </span>
-                      {item.label}
-                      <span aria-hidden="true">↗</span>
-                    </button>
-                  ))}
-              </div>
-            </section>
-          )}
           {tab === "overview" ? (
             <Overview onError={onError} />
-          ) : tab === "media" || tab === "auditLogs" ? (
-            <RecordsPanel
-              key={tab}
-              entity={tab}
-              canEdit={can(user.role, tab, "manage")}
-              onError={onError}
-            />
-          ) : modules[tab] ? (
-            <CmsPanel
-              key={tab}
-              entity={tab}
-              canEdit={can(user.role, tab, "update")}
-              onError={onError}
-            />
           ) : (
             <ResourcePanel
               key={tab}
-              entity={tab as "contactSubmissions" | "donors"}
-              canEdit={can(user.role, tab, "update")}
+              entity={tab}
+              canEdit={["admin", "super-admin", "editor"].includes(user.role)}
               onError={onError}
             />
           )}
@@ -370,8 +256,8 @@ function Overview({ onError }: { onError: (error: unknown) => void }) {
                 <p className="admin-empty">Aucun message pour le moment.</p>
               )}
               <div className="admin-note">
-                Les brouillons restent privés. Seuls les contenus publiés
-                apparaissent sur le site.
+                Les contenus de la page d’accueil restent ceux de la maquette.
+                Leur affichage dynamique sera raccordé séparément.
               </div>
             </section>
           </div>

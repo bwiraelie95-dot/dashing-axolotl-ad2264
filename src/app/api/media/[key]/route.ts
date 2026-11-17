@@ -1,4 +1,4 @@
-import {readMedia} from '@/lib/media-storage';
+import { getStore } from '@netlify/blobs';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -13,7 +13,8 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ success: false, error: 'Média invalide.' }, { status: 400 });
   }
 
-  const entry = await readMedia(key);
+  const store = getStore({ name: 'acv-media', consistency: 'strong' });
+  const entry = await store.getWithMetadata(key, { type: 'blob', consistency: 'strong' });
   if (!entry) {
     return NextResponse.json({ success: false, error: 'Média introuvable.' }, { status: 404 });
   }
@@ -25,8 +26,6 @@ export async function GET(_request: Request, context: RouteContext) {
     headers: {
       'Cache-Control': 'public, max-age=31536000, immutable',
       'Content-Type': contentType,
-      'X-Content-Type-Options':'nosniff',
-      'Content-Security-Policy':"default-src 'none'; sandbox",
       ...(entry.etag ? { ETag: entry.etag } : {})
     }
   });

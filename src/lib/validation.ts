@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { roles } from './permissions';
 
 export const contentEntitySchema = z.enum([
   'pages',
@@ -34,7 +33,7 @@ export const entityPayloadSchema = z
   .refine((payload) => Object.keys(payload).length > 0, 'Aucune donnée à enregistrer.')
   .refine((payload) => Object.keys(payload).length <= 100, 'Trop de champs ont été envoyés.');
 
-const adminRoleSchema = z.enum(roles);
+const adminRoleSchema = z.enum(['super-admin', 'admin', 'editor', 'viewer']);
 const adminStatusSchema = z.enum(['active', 'suspended']);
 
 export const adminUserCreateSchema = z.object({
@@ -81,7 +80,7 @@ export const siteSettingsPatchSchema = z.object({
   privacyPolicyEn: z.string().max(50_000).optional(),
   privacyPolicyFr: z.string().max(50_000).optional(),
   defaultOgImage: z.string().trim().max(2_048).optional(),
-  bannerSpeedMs: z.coerce.number().int().min(3_000).max(600_000).optional()
+  bannerSpeedMs: z.coerce.number().int().min(3_000).max(60_000).optional()
 }).strict().refine((payload) => Object.keys(payload).length > 0, 'Aucune donnée à enregistrer.');
 
 const bannerPayloadFields = {
