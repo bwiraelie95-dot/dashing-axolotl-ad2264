@@ -1,15 +1,4 @@
-import { PublicationCards } from "@/components/public/Editorial";
-import { contentModel } from "@/models/contentModel";
-export default async function HomeSections() {
-  const [stats, programs, articles] = await Promise.all([
-    contentModel.list<Record<string, unknown> & { id: string }>("stats"),
-    contentModel.list<Record<string, unknown> & { id: string }>("programs"),
-    contentModel.list<Record<string, unknown> & { id: string }>("articles"),
-  ]);
-  const impact = stats.find(
-    (s) => s.displayPage === "home" && s.status === "active",
-  );
-
+export default function HomeSections() {
   return (
     <>
       <section id="histoire" className="w-full py-24 bg-surface">
@@ -106,7 +95,7 @@ export default async function HomeSections() {
               durablement le quotidien des villages du Nord-Kivu.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div
               data-reveal
               className="bg-surface-container-lowest p-8 rounded-[20px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between group"
@@ -283,9 +272,7 @@ export default async function HomeSections() {
             <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-y border-on-primary/15 mb-8">
               <div className="flex flex-col items-center">
                 <span className="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">
-                  {impact
-                    ? String(impact.value) + String(impact.suffix || "")
-                    : "—"}
+                  120+
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
                   Jeunes formés & accompagnés
@@ -301,18 +288,18 @@ export default async function HomeSections() {
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
                 <span className="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">
-                  {articles.filter((a) => a.status === "published").length}
+                  12
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
-                  Articles publiés
+                  Partenariats communautaires
                 </span>
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
                 <span className="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">
-                  {programs.filter((p) => p.status === "published").length}
+                  4
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
-                  Programmes publiés
+                  Initiatives phares pérennisées
                 </span>
               </div>
             </div>
@@ -320,13 +307,13 @@ export default async function HomeSections() {
               <span className="material-symbols-outlined text-[16px] text-tertiary-fixed">
                 verified
               </span>
-              <span>Chiffres enregistrés et mis à jour par l’équipe ACV</span>
+              <span>Données de terrain certifiées ACV · Mise à jour 2024</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="programmes-terrain" className="w-full py-24 bg-surface">
+      <section id="journal" className="w-full py-24 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
             <div className="flex flex-col gap-2">
@@ -342,26 +329,150 @@ export default async function HomeSections() {
             </div>
             <a
               className="inline-flex items-center gap-2 text-primary font-label-md text-label-md hover:underline shrink-0"
-              href="/programmes"
+              href="/journal"
             >
-              <span>Voir nos programmes</span>
+              <span>Voir tout le journal</span>
               <span className="material-symbols-outlined text-[18px]">
                 arrow_right_alt
               </span>
             </a>
           </div>
-          <PublicationCards
-            items={programs
-              .filter((p) => p.status === "published")
-              .sort((a, b) =>
-                String(b.activityDate || b.createdAt).localeCompare(
-                  String(a.activityDate || a.createdAt),
-                ),
-              )
-              .slice(0, 3)}
-            kind="programmes"
-            lang="fr"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <article
+              data-reveal
+              className="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group"
+            >
+              <div className="relative h-56 w-full overflow-hidden">
+                <img
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  alt="Young Congolese community volunteers planting indigenous tree saplings in fertile dark volcanic soil near Goma with lush green rolling hills in background under soft golden daylight"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPob2d-opxKAWMwOZoX9nz8iV6_a2aqvJXWpZ5edXQ1LLmdqZ0sJzXzwFFFFNOrRKuGUcajgGIEEVbVjk3_fLnHgPwaxFXnMA1Nw15_W7W_GrW7apmSsu6zgD6wYrXDgqmXh6kRMYAwcYab_G1ewa7bFeNtAkbqcgok3kllgZhIgOZ9G06ok-WwybbuuH4iZlbib9RswQwBT0VIpKUrqI5KL2R3VEdl3ejLS8gDaU"
+                />
+                <span className="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
+                  #Reboisement
+                </span>
+              </div>
+              <div className="p-6 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-3">
+                    <span className="material-symbols-outlined text-[14px]">
+                      calendar_today
+                    </span>
+                    <span>14 Mars 2024</span>
+                    <span>•</span>
+                    <span>4 min de lecture</span>
+                  </div>
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors mb-3">
+                    5 000 arbres plantés : le rempart vert des collines de Sake
+                  </h3>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-6">
+                    Récit d'une journée de mobilisation intergénérationnelle où
+                    aînés et lycéens ont uni leurs efforts pour restaurer les
+                    versants fragilisés par l'érosion.
+                  </p>
+                </div>
+                <a
+                  href="/journal"
+                  className="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold"
+                >
+                  <span>Voir les récits publiés</span>
+                  <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">
+                    arrow_forward
+                  </span>
+                </a>
+              </div>
+            </article>
+
+            <article
+              data-reveal
+              className="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group"
+            >
+              <div className="relative h-56 w-full overflow-hidden">
+                <img
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  alt="Congolese youth learning organic vegetable farming techniques with handmade agricultural tools in community garden with volcanic stone beds in North Kivu"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkCWtgi5GorQ8qExfo7b19HsQsyVvvi-esnLeI5lh2XjstWJgieQ49d9sFOTsFJh3sFrNiACfVYGHFMHstqnjM49yIt-zwlKjSzhNNMIaHHWiDBTDM3o8u92Qx-UMKYz1pzNCWE4wDRhBtA6Ujm902xPhsD93Y_Go1iGr3PFiX1Zypsq0iv3oTK-j0wiV8aMkdXNwlsUteIuFX_hB66oR1uk4Nu0sc0vh-pF1sFrI"
+                />
+                <span className="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-on-tertiary-container font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
+                  #Agroécologie
+                </span>
+              </div>
+              <div className="p-6 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-3">
+                    <span className="material-symbols-outlined text-[14px]">
+                      calendar_today
+                    </span>
+                    <span>28 Février 2024</span>
+                    <span>•</span>
+                    <span>5 min de lecture</span>
+                  </div>
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors mb-3">
+                    De la cendre à la récolte : l'art du maraîchage volcanique
+                  </h3>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-6">
+                    Comment les coopératives de femmes de Kibumba transforment
+                    la roche volcanique en jardins maraîchers abondants et
+                    résilients aux aléas climatiques.
+                  </p>
+                </div>
+                <a
+                  href="/journal"
+                  className="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold"
+                >
+                  <span>Voir les récits publiés</span>
+                  <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">
+                    arrow_forward
+                  </span>
+                </a>
+              </div>
+            </article>
+
+            <article
+              data-reveal
+              className="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group"
+            >
+              <div className="relative h-56 w-full overflow-hidden">
+                <img
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  alt="African girls and youth leaders participating in a community workshop, writing notes and collaborating around wooden table in sunlit classroom in Goma DRC"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT1Z7886-qhfQ3v5XxyMr0RoxeLLYnXkcS8Sw0q83aWwzrNjFp4i-jy7DYbgzR7ZLhZ1vx6YnS8yiu-wWecQtDVPDiqi8jTE2YYeXhAYieJ_ha0P3gM0fmzjE38P3mT0eWIzYRIErEGWM6pwjDV2dBjjEuVUQyy1G03hF0L0GRTeguVO2a2SqLO9q3m7n9PwQStG3p7hVRO0Ta3sEcFBxEzTcnTZ8fiLktfl2Ul4o"
+                />
+                <span className="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
+                  #Jeunesse
+                </span>
+              </div>
+              <div className="p-6 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-3">
+                    <span className="material-symbols-outlined text-[14px]">
+                      calendar_today
+                    </span>
+                    <span>12 Janvier 2024</span>
+                    <span>•</span>
+                    <span>3 min de lecture</span>
+                  </div>
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors mb-3">
+                    Créer son propre emploi à 20 ans : la promotion Horizon
+                  </h3>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-6">
+                    Immersion au sein de notre premier incubateur solidaire où
+                    douze micro-projets portés par des jeunes ruraux ont vu le
+                    jour ce trimestre.
+                  </p>
+                </div>
+                <a
+                  href="/journal"
+                  className="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold"
+                >
+                  <span>Voir les récits publiés</span>
+                  <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">
+                    arrow_forward
+                  </span>
+                </a>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 

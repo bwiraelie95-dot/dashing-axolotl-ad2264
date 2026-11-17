@@ -1,6 +1,6 @@
 import { contentModel } from '@/models/contentModel';
 
-type AuditAction = 'export' | 'create' | 'update' | 'delete' | 'login' | 'upload' | 'status_change' | 'password_change';
+type AuditAction = 'create' | 'update' | 'delete' | 'login' | 'upload' | 'status_change' | 'password_change';
 
 export interface AuditActor {
   userName: string;

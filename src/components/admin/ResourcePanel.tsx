@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { adminRequest, SESSION_KEY } from "@/lib/client/admin-api";
+import { adminRequest } from "@/lib/client/admin-api";
 import ArticleEditor, {
   textValue as text,
   type ContentRecord,
@@ -23,7 +23,6 @@ export default function ResourcePanel({
   const [notice, setNotice] = useState("");
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [version, setVersion] = useState(0);
   const [editor, setEditor] = useState<ContentRecord | null | undefined>(
@@ -41,7 +40,6 @@ export default function ResourcePanel({
       page: String(page),
       limit: "15",
       search: query,
-      ...(status ? { status } : {}),
     });
     adminRequest<ContentRecord[]>(`${entity}?${params}`, {
       signal: controller.signal,
@@ -60,43 +58,7 @@ export default function ResourcePanel({
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [entity, page, query, status, version, onError]);
-  async function exportDonations() {
-    try {
-      const response = await fetch(
-        `/api/admin/donations/export?status=${encodeURIComponent(status)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem(SESSION_KEY)}`,
-          },
-        },
-      );
-      if (!response.ok) throw new Error("Export refusé.");
-      const url = URL.createObjectURL(await response.blob());
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "acv-donations.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Export impossible.");
-    }
-  }
-  async function markRead(item: ContentRecord) {
-    try {
-      await adminRequest(`contactSubmissions/${item.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ read: true }),
-      });
-      setDetail({ ...item, read: true });
-      setVersion((v) => v + 1);
-    } catch (error) {
-      onError(error);
-      setError(
-        error instanceof Error ? error.message : "Enregistrement impossible.",
-      );
-    }
-  }
+  }, [entity, page, query, version, onError]);
   async function remove(item: ContentRecord) {
     if (
       !window.confirm(
@@ -159,39 +121,6 @@ export default function ResourcePanel({
           />
           <button className="admin-button secondary">Rechercher</button>
         </form>
-        {entity === "donors" && (
-          <div className="admin-form-actions">
-            <select
-              aria-label="Filtrer par statut"
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">Tous les statuts</option>
-              {[
-                "pending",
-                "completed",
-                "failed",
-                "cancelled",
-                "refunded",
-                "partially_refunded",
-                "disputed",
-                "dispute_lost",
-                "pledged",
-              ].map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-            <button
-              className="admin-button secondary"
-              onClick={() => void exportDonations()}
-            >
-              Exporter CSV
-            </button>
-          </div>
-        )}
         <div className="admin-form-actions">
           <button
             className="admin-button secondary"
@@ -308,8 +237,6 @@ export default function ResourcePanel({
                             : text(item.name || item.donorName) || "Sans nom"}
                         </strong>
                         <small>{text(item.email || item.donorEmail)}</small>
-                        <small>{text(item.stripeSessionId)}</small>
-                        <small>{text(item.stripePaymentIntentId)}</small>
                       </td>
                       <td>
                         {text(item.amount)} {text(item.currency) || "USD"}
@@ -337,10 +264,7 @@ export default function ResourcePanel({
                       <td>
                         <button
                           className="admin-text-link"
-                          onClick={() => {
-                            setDetail(item);
-                            if (canEdit && !item.read) void markRead(item);
-                          }}
+                          onClick={() => setDetail(item)}
                         >
                           Consulter
                         </button>
