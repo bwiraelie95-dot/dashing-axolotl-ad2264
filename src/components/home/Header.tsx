@@ -66,9 +66,9 @@ export default function Header() {
 
               <a
                 className="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"
-                href="/notes-de-terrain"
+                href="/notre-equipe"
               >
-                Notes de terrain
+                Notre équipe
               </a>
             </div>
           </div>
