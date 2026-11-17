@@ -9,20 +9,21 @@ datasource db {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  externalId   String     @unique @map("external_id") @db.VarChar(191)
-  name         String     @db.VarChar(191)
-  email        String     @unique @db.VarChar(191)
-  passwordHash String     @map("password_hash") @db.VarChar(255)
-  role         String     @default("editor") @db.VarChar(32)
-  status       String     @default("active") @db.VarChar(32)
-  avatar       String?    @db.Text
-  lastLogin    DateTime?  @map("last_login")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-  articles     Article[]  @relation("ArticleAuthor")
-  media        Media[]    @relation("MediaUploader")
-  auditLogs    AuditLog[]
+  id             Int        @id @default(autoincrement())
+  externalId     String     @unique @map("external_id") @db.VarChar(191)
+  name           String     @db.VarChar(191)
+  email          String     @unique @db.VarChar(191)
+  passwordHash   String     @map("password_hash") @db.VarChar(255)
+  role           String     @default("editor") @db.VarChar(32)
+  status         String     @default("active") @db.VarChar(32)
+  avatar         String?    @db.Text
+  lastLogin      DateTime?  @map("last_login")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  sessionVersion Int        @default(0) @map("session_version")
+  articles       Article[]  @relation("ArticleAuthor")
+  media          Media[]    @relation("MediaUploader")
+  auditLogs      AuditLog[]
 
   @@index([role, status])
   @@map("users")
@@ -82,24 +83,27 @@ model Banner {
 }
 
 model Program {
-  id            Int      @id @default(autoincrement())
-  externalId    String   @unique @map("external_id") @db.VarChar(191)
-  slug          String   @unique @db.VarChar(191)
-  titleEn       String   @map("title_en") @db.VarChar(255)
-  titleFr       String   @map("title_fr") @db.VarChar(255)
-  descriptionEn String?  @map("description_en") @db.LongText
-  descriptionFr String?  @map("description_fr") @db.LongText
-  icon          String?  @db.VarChar(100)
-  imageUrl      String?  @map("image_url") @db.Text
-  status        String   @default("draft") @db.VarChar(32)
-  orderIndex    Int      @default(0) @map("order_index")
+  deletedAt     DateTime?      @map("deleted_at")
+  photos        ProgramImage[]
+  articles      Article[]
+  id            Int            @id @default(autoincrement())
+  externalId    String         @unique @map("external_id") @db.VarChar(191)
+  slug          String         @unique @db.VarChar(191)
+  titleEn       String         @map("title_en") @db.VarChar(255)
+  titleFr       String         @map("title_fr") @db.VarChar(255)
+  descriptionEn String?        @map("description_en") @db.LongText
+  descriptionFr String?        @map("description_fr") @db.LongText
+  icon          String?        @db.VarChar(100)
+  imageUrl      String?        @map("image_url") @db.Text
+  status        String         @default("draft") @db.VarChar(32)
+  orderIndex    Int            @default(0) @map("order_index")
   metrics       Json?
-  objectivesEn  Json?    @map("objectives_en")
-  objectivesFr  Json?    @map("objectives_fr")
+  objectivesEn  Json?          @map("objectives_en")
+  objectivesFr  Json?          @map("objectives_fr")
   gallery       Json?
   data          Json?
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
 
   @@index([status, orderIndex])
   @@map("programs")
@@ -129,30 +133,33 @@ model TeamMember {
 }
 
 model Article {
-  id          Int       @id @default(autoincrement())
-  externalId  String    @unique @map("external_id") @db.VarChar(191)
-  titleEn     String    @map("title_en") @db.VarChar(255)
-  titleFr     String    @map("title_fr") @db.VarChar(255)
-  slug        String    @unique @db.VarChar(191)
-  excerptEn   String?   @map("excerpt_en") @db.Text
-  excerptFr   String?   @map("excerpt_fr") @db.Text
-  contentEn   String    @map("content_en") @db.LongText
-  contentFr   String    @map("content_fr") @db.LongText
-  coverImage  String?   @map("cover_image") @db.Text
-  authorId    Int?      @map("author_id")
-  authorName  String?   @map("author_name") @db.VarChar(191)
-  category    String    @db.VarChar(100)
-  status      String    @default("draft") @db.VarChar(32)
-  readTime    String?   @map("read_time") @db.VarChar(50)
-  isFeatured  Boolean   @default(false) @map("is_featured")
+  programId   Int?           @map("program_id")
+  program     Program?       @relation(fields: [programId], references: [id], onDelete: SetNull)
+  photos      ArticleImage[]
+  id          Int            @id @default(autoincrement())
+  externalId  String         @unique @map("external_id") @db.VarChar(191)
+  titleEn     String         @map("title_en") @db.VarChar(255)
+  titleFr     String         @map("title_fr") @db.VarChar(255)
+  slug        String         @unique @db.VarChar(191)
+  excerptEn   String?        @map("excerpt_en") @db.Text
+  excerptFr   String?        @map("excerpt_fr") @db.Text
+  contentEn   String         @map("content_en") @db.LongText
+  contentFr   String         @map("content_fr") @db.LongText
+  coverImage  String?        @map("cover_image") @db.Text
+  authorId    Int?           @map("author_id")
+  authorName  String?        @map("author_name") @db.VarChar(191)
+  category    String         @db.VarChar(100)
+  status      String         @default("draft") @db.VarChar(32)
+  readTime    String?        @map("read_time") @db.VarChar(50)
+  isFeatured  Boolean        @default(false) @map("is_featured")
   tags        Json?
-  views       Int       @default(0)
-  publishedAt DateTime? @map("published_at")
+  views       Int            @default(0)
+  publishedAt DateTime?      @map("published_at")
   data        Json?
-  deletedAt   DateTime? @map("deleted_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  author      User?     @relation("ArticleAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  deletedAt   DateTime?      @map("deleted_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  author      User?          @relation("ArticleAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([status, publishedAt])
   @@index([category, status])
@@ -236,23 +243,27 @@ model AuditLog {
 }
 
 model Donation {
-  id               Int      @id @default(autoincrement())
-  externalId       String   @unique @map("external_id") @db.VarChar(191)
-  donorName        String?  @map("donor_name") @db.VarChar(191)
-  donorEmail       String?  @map("donor_email") @db.VarChar(191)
-  donorType        String?  @map("donor_type") @db.VarChar(64)
-  amount           Decimal  @db.Decimal(12, 2)
-  currency         String   @default("USD") @db.Char(3)
-  frequency        String   @default("one-time") @db.VarChar(32)
-  pillarAllocation String?  @map("pillar_allocation") @db.VarChar(191)
-  paymentMethod    String?  @map("payment_method") @db.VarChar(100)
-  isAnonymous      Boolean  @default(false) @map("is_anonymous")
-  status           String   @default("pledged") @db.VarChar(32)
-  notes            String?  @db.Text
-  donatedAt        DateTime @default(now()) @map("donated_at")
-  data             Json?
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  stripeSessionId       String?  @unique @map("stripe_session_id") @db.VarChar(191)
+  stripePaymentIntentId String?  @unique @map("stripe_payment_intent_id") @db.VarChar(191)
+  refundedAmount        Decimal  @default(0) @map("refunded_amount") @db.Decimal(12, 2)
+  stripeEventCreated    Int      @default(0) @map("stripe_event_created")
+  id                    Int      @id @default(autoincrement())
+  externalId            String   @unique @map("external_id") @db.VarChar(191)
+  donorName             String?  @map("donor_name") @db.VarChar(191)
+  donorEmail            String?  @map("donor_email") @db.VarChar(191)
+  donorType             String?  @map("donor_type") @db.VarChar(64)
+  amount                Decimal  @db.Decimal(12, 2)
+  currency              String   @default("USD") @db.Char(3)
+  frequency             String   @default("one-time") @db.VarChar(32)
+  pillarAllocation      String?  @map("pillar_allocation") @db.VarChar(191)
+  paymentMethod         String?  @map("payment_method") @db.VarChar(100)
+  isAnonymous           Boolean  @default(false) @map("is_anonymous")
+  status                String   @default("pledged") @db.VarChar(32)
+  notes                 String?  @db.Text
+  donatedAt             DateTime @default(now()) @map("donated_at")
+  data                  Json?
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
 
   @@index([status, donatedAt])
   @@index([donorEmail])
@@ -352,4 +363,72 @@ model FieldNote {
 
   @@index([status, noteDate])
   @@map("field_notes")
+}
+
+model ArticleImage {
+  id           Int     @id @default(autoincrement())
+  articleId    Int     @map("article_id")
+  article      Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  url          String  @db.Text
+  captionFr    String? @map("caption_fr") @db.Text
+  captionEn    String? @map("caption_en") @db.Text
+  displayOrder Int     @default(0) @map("display_order")
+
+  @@index([articleId, displayOrder])
+  @@map("article_images")
+}
+
+model ProgramImage {
+  id           Int     @id @default(autoincrement())
+  programId    Int     @map("program_id")
+  program      Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  url          String  @db.Text
+  captionFr    String? @map("caption_fr") @db.Text
+  captionEn    String? @map("caption_en") @db.Text
+  displayOrder Int     @default(0) @map("display_order")
+
+  @@index([programId, displayOrder])
+  @@map("program_images")
+}
+
+model ContentRevision {
+  id        Int      @id @default(autoincrement())
+  entity    String   @db.VarChar(64)
+  recordId  String   @map("record_id") @db.VarChar(191)
+  payload   Json
+  authorId  String   @map("author_id") @db.VarChar(191)
+  action    String   @db.VarChar(32)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entity, recordId, createdAt])
+  @@map("content_revisions")
+}
+
+model ContentDraft {
+  id        Int      @id @default(autoincrement())
+  entity    String   @db.VarChar(64)
+  recordId  String   @map("record_id") @db.VarChar(191)
+  payload   Json
+  authorId  String   @map("author_id") @db.VarChar(191)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([entity, recordId])
+  @@map("content_drafts")
+}
+
+model PaymentEvent {
+  id        String   @id @db.VarChar(191)
+  type      String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("payment_events")
+}
+
+model RequestLimit {
+  key       String   @id @db.VarChar(191)
+  count     Int      @default(1)
+  expiresAt DateTime @map("expires_at")
+
+  @@index([expiresAt])
+  @@map("request_limits")
 }
