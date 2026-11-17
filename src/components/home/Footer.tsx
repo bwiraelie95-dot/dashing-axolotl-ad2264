@@ -1,6 +1,4 @@
-import {contentModel} from "@/models/contentModel";
-export default async function Footer() {
- const settings=(await contentModel.list<Record<string,unknown>&{id:string}>("siteSettings"))[0]||{};
+export default function Footer() {
   return (
     <footer
       id="contact"
@@ -102,9 +100,37 @@ export default async function Footer() {
               Contact & Terrain
             </h3>
             <div className="flex flex-col gap-2 font-body-sm text-body-sm text-surface-dim">
-              <p>{String(settings.address||"")}</p>
-              <p><a href={`mailto:${settings.email}`}>{String(settings.email||"")}</a></p><p>{String(settings.phone||"")}</p>
-              <div className="footer-socials">{['instagram','facebook','twitter','linkedin'].map(key=>settings[key+'Active']&&settings[key+'Url']?<a key={key} href={String(settings[key+'Url'])} target="_blank" rel="noopener noreferrer" aria-label={key==='twitter'?'X / Twitter':key}><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d={key==='facebook'?'M14 22v-9h3l.5-4H14V7c0-1 .5-2 2-2h2V1.5A23 23 0 0 0 15 1c-3 0-5 2-5 5v3H7v4h3v9Z':key==='instagram'?'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm6-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z':'M18.9 2H22l-6.8 7.8L23 22h-6.3l-4.9-7.4L5.3 22H2l8.3-9.5L1 2h6.5l4.4 6.7L18.9 2Zm-1.1 18h1.7L6.5 4H4.7Z'}/></svg></a>:null)}</div>
+              <p>Goma, Nord-Kivu, RDC</p>
+              <p>contact@africacommunityvillage.org</p>
+              <div className="flex items-center gap-3 pt-2">
+                <a
+                  aria-label="Localisation"
+                  className="w-8 h-8 rounded-full bg-inverse-surface/80 flex items-center justify-center text-surface-dim hover:text-surface-container-lowest hover:bg-surface-container-high/20 transition-all"
+                  href="https://www.openstreetmap.org/search?query=Goma%2C%20RDC"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    pin_drop
+                  </span>
+                </a>
+                <a
+                  aria-label="Courriel"
+                  className="w-8 h-8 rounded-full bg-inverse-surface/80 flex items-center justify-center text-surface-dim hover:text-surface-container-lowest hover:bg-surface-container-high/20 transition-all"
+                  href="/contact"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    mail
+                  </span>
+                </a>
+                <a
+                  aria-label="Contacter l’équipe"
+                  className="w-8 h-8 rounded-full bg-inverse-surface/80 flex items-center justify-center text-surface-dim hover:text-surface-container-lowest hover:bg-surface-container-high/20 transition-all"
+                  href="/contact"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    forum
+                  </span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -134,7 +160,7 @@ export default async function Footer() {
               <span>Espace administration</span>
             </a>
           </div>
-          <p>© {new Date().getFullYear()} Africa Community Village. Tous droits réservés.</p>
+          <p>© 2025 Africa Community Village. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

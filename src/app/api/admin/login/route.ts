@@ -1,4 +1,3 @@
-import { rateLimit } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { loginSchema } from '@/lib/validation';
 import { apiError, getRequestIp } from '@/lib/http';
@@ -10,7 +9,6 @@ export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
-    await rateLimit(request,'login',10,300000);
     const credentials = loginSchema.parse(await request.json());
     const user = await userModel.authenticate(credentials.email, credentials.password);
     if (!user) {

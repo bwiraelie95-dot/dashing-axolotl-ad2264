@@ -4,7 +4,6 @@ import HeroCarousel from "@/components/home/HeroCarousel";
 import HomeSections from "@/components/home/HomeSections";
 import DonationSection from "@/components/home/DonationSection";
 import Footer from "@/components/home/Footer";
-export const dynamic="force-dynamic";
 export default function HomePage() {
   return (
     <>
