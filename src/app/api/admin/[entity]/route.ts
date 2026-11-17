@@ -1,3 +1,6 @@
+import { saveCms } from '@/models/cmsModel';
+import { modules } from '@/lib/cms/modules';
+import { requirePermission } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, requireContentEditor, requireSuperAdmin } from '@/lib/auth';
 import { apiError, getRequestIp, MethodNotAllowedError } from '@/lib/http';
@@ -22,8 +25,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
-    if (entity === 'users') await requireSuperAdmin(request);
-    else await requireAdmin(request);
+    await requirePermission(request, entity, 'read');
     const query = adminQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
 
     if (entity === 'users') {
@@ -49,9 +51,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
-    const actor = entity === 'users' || entity === 'siteSettings'
-      ? await requireSuperAdmin(request)
-      : await requireContentEditor(request);
+    const actor = await requirePermission(request, entity, 'update');
     if (['auditLogs', 'media', 'donors', 'contactSubmissions', 'siteSettings'].includes(entity)) {
       throw new MethodNotAllowedError();
     }
@@ -62,7 +62,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ? bannerPayloadSchema.parse(body)
         : entityPayloadSchema.parse(body);
 
-    const item = entity === 'users' ? await userModel.create(payload) : await contentModel.create(entity, payload);
+    const item = entity === 'users' ? await userModel.create(payload) : modules[entity] ? await saveCms(entity,null,body,actor.id,false) : await contentModel.create(entity, payload);
+    if(!item)throw new Error('Enregistrement introuvable.');
     await logAuditAction(
       { userName: String(actor.email), userEmail: String(actor.email) },
       'create',

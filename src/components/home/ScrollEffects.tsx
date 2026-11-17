@@ -21,7 +21,11 @@ export default function ScrollEffects() {
             const element = entry.target as HTMLElement;
             const siblings = [
               ...(element.parentElement?.children ?? []),
-            ].filter((child) => child.matches("[data-reveal]"));
+            ].filter((child) =>
+              child.matches(
+                "[data-reveal], .reveal-on-scroll, .team-cards article",
+              ),
+            );
             const delay =
               Math.min(Math.max(siblings.indexOf(element), 0), 4) * 75;
             const animation = element.animate(
@@ -44,7 +48,9 @@ export default function ScrollEffects() {
         { threshold: 0.08, rootMargin: "0px 0px -24px 0px" },
       );
       document
-        .querySelectorAll("#accueil [data-reveal]")
+        .querySelectorAll(
+          "[data-reveal], .reveal-on-scroll, .team-cards article, .interior-callout",
+        )
         .forEach((element) => observer?.observe(element));
     }
     let frame = 0;
