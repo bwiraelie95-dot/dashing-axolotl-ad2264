@@ -2,6 +2,11 @@
   command = "npm run build"
   publish = ".next"
 
+# Apply committed schema migrations before publishing production code.
+# Preview builds must never migrate the shared production database.
+[context.production]
+  command = "npm run db:migrate && npm run build"
+
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
