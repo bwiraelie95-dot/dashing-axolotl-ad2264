@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-export default function DonationSection() {
+export default function DonationSection({
+  language,
+}: {
+  language: "fr" | "en";
+}) {
+  const english = language === "en";
+  const t = (french: string, englishText: string) =>
+    english ? englishText : french;
   const [amount, setAmount] = useState(50);
   const [custom, setCustom] = useState("");
   const [monthly, setMonthly] = useState(false);
@@ -14,15 +21,13 @@ export default function DonationSection() {
           <div className="lg:col-span-5 bg-primary-container text-on-primary p-8 sm:p-12 lg:p-14 flex flex-col justify-between relative">
             <div className="relative z-10 flex flex-col gap-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest/15 text-tertiary-fixed font-eyebrow text-eyebrow tracking-wider w-max">
-                SOUTIEN DIRECT & SOUVERAIN
+                {t("SOUTIEN DIRECT & SOUVERAIN", "DIRECT, COMMUNITY-LED SUPPORT")}
               </div>
               <h2 className="font-headline-lg text-headline-lg font-bold text-surface-container-lowest leading-tight">
-                Votre don agit directement sur le terrain
+                {t("Votre don agit directement sur le terrain", "Your donation supports work on the ground")}
               </h2>
               <p className="font-body-md text-body-md text-primary-fixed leading-relaxed">
-                Chez ACV, 92% de vos contributions sont alloués aux activités
-                concrètes menées dans les villages du Nord-Kivu. Aucun
-                intermédiaire bureaucratique.
+                {t("Chez ACV, 92% de vos contributions sont alloués aux activités concrètes menées dans les villages du Nord-Kivu. Aucun intermédiaire bureaucratique.", "At ACV, 92% of contributions go to practical activities in North Kivu communities, without bureaucratic intermediaries.")}
               </p>
               <ul className="flex flex-col gap-4 pt-4">
                 <li className="flex items-start gap-3">
@@ -30,7 +35,7 @@ export default function DonationSection() {
                     check_circle
                   </span>
                   <span className="font-body-sm text-body-sm text-surface-container-lowest">
-                    Transparence totale et comptes publiés semestriellement.
+                    {t("Transparence totale et comptes publiés semestriellement.", "Full transparency, with accounts published every six months.")}
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -38,7 +43,7 @@ export default function DonationSection() {
                     check_circle
                   </span>
                   <span className="font-body-sm text-body-sm text-surface-container-lowest">
-                    Gestion intégrale par des acteurs locaux engagés à Goma.
+                    {t("Gestion intégrale par des acteurs locaux engagés à Goma.", "Managed by committed local teams in Goma.")}
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -46,7 +51,7 @@ export default function DonationSection() {
                     check_circle
                   </span>
                   <span className="font-body-sm text-body-sm text-surface-container-lowest">
-                    Impact mesuré et rapport photographique remis aux donateurs.
+                    {t("Impact mesuré et rapport photographique remis aux donateurs.", "Measured impact and photo updates shared with donors.")}
                   </span>
                 </li>
               </ul>
@@ -57,10 +62,10 @@ export default function DonationSection() {
               </span>
               <div className="flex flex-col">
                 <span className="font-label-sm text-label-sm font-semibold text-surface-container-lowest">
-                  Plateforme certifiée et sécurisée
+                  {t("Plateforme certifiée et sécurisée", "Certified, secure platform")}
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed text-xs">
-                  Paiement chiffré SSL 256 bits
+                  {t("Paiement chiffré SSL 256 bits", "256-bit SSL encrypted payment")}
                 </span>
               </div>
             </div>
@@ -76,7 +81,7 @@ export default function DonationSection() {
                 aria-pressed={!monthly}
                 type="button"
               >
-                Don ponctuel
+                {t("Don ponctuel", "One-time donation")}
               </button>
               <button
                 className="flex-1 py-2.5 text-center font-label-md text-label-md rounded-lg text-on-surface-variant hover:text-on-surface transition-all"
@@ -86,12 +91,12 @@ export default function DonationSection() {
                 aria-pressed={monthly}
                 type="button"
               >
-                Don mensuel
+                {t("Don mensuel", "Monthly donation")}
               </button>
             </div>
 
             <label className="font-label-sm text-label-sm uppercase tracking-wider text-outline mb-3 block">
-              Sélectionnez un montant
+              {t("Sélectionnez un montant", "Choose an amount")}
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
               <button
@@ -151,12 +156,12 @@ export default function DonationSection() {
               <input
                 className="w-full pl-10 pr-4 py-3 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-outline/70 focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
                 id="custom-amount"
-                aria-label="Montant personnalisé en dollars"
+                aria-label={t("Montant personnalisé en dollars", "Custom amount in US dollars")}
                 min="5"
                 max="10000"
                 value={custom}
                 onChange={(event) => setCustom(event.target.value)}
-                placeholder="Autre montant libre"
+                placeholder={t("Autre montant libre", "Enter another amount")}
                 type="number"
               />
             </div>
@@ -166,7 +171,7 @@ export default function DonationSection() {
                 className="font-label-sm text-label-sm uppercase tracking-wider text-outline mb-2 block"
                 htmlFor="project-select"
               >
-                Attribuer mon don à une priorité
+                {t("Attribuer mon don à une priorité", "Direct my donation to a priority")}
               </label>
               <div className="relative">
                 <select
@@ -174,17 +179,17 @@ export default function DonationSection() {
                   id="project-select"
                 >
                   <option value="urgent">
-                    Où le besoin est le plus urgent (Tous piliers)
+                    {t("Où le besoin est le plus urgent (Tous piliers)", "Where the need is greatest (all pillars)")}
                   </option>
                   <option value="nature">
-                    Nature & Reboisement des Virunga
+                    {t("Nature & Reboisement des Virunga", "Nature & Virunga reforestation")}
                   </option>
                   <option value="agri">
-                    Agroécologie & Souveraineté alimentaire
+                    {t("Agroécologie & Souveraineté alimentaire", "Agroecology & food sovereignty")}
                   </option>
-                  <option value="jeunesse">Bourses & Éducation rurale</option>
+                  <option value="jeunesse">{t("Bourses & Éducation rurale", "Scholarships & rural education")}</option>
                   <option value="sante">
-                    Eau propre & Santé communautaire
+                    {t("Eau propre & Santé communautaire", "Clean water & community health")}
                   </option>
                 </select>
                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">
@@ -204,19 +209,26 @@ export default function DonationSection() {
                 favorite
               </span>
               <span id="donate-label">
-                Faire un don {monthly ? "mensuel " : ""}de {custom || amount} $
+                {monthly
+                  ? t(
+                      `Faire un don mensuel de ${custom || amount} $`,
+                      `Donate ${custom || amount} $ monthly`,
+                    )
+                  : t(
+                      `Faire un don de ${custom || amount} $`,
+                      `Donate ${custom || amount} $`,
+                    )}
               </span>
             </button>
             <p
               id="payment-note"
               className="mt-4 text-sm text-on-surface-variant"
             >
-              Aperçu du formulaire — le paiement sera disponible après connexion
-              à Stripe.
+              {t("Aperçu du formulaire — le paiement sera disponible après connexion à Stripe.", "Form preview — payments will be available once Stripe is connected.")}
             </p>
             <div className="mt-4 flex items-center justify-between text-outline text-xs">
-              <span>Reçu fiscal immédiat par email</span>
-              <span>Déductible d'impôt selon juridiction</span>
+              <span>{t("Reçu fiscal immédiat par email", "Immediate receipt by email")}</span>
+              <span>{t("Déductible d'impôt selon juridiction", "Tax-deductible where applicable")}</span>
             </div>
           </div>
         </div>

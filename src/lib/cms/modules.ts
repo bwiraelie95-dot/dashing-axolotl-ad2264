@@ -87,6 +87,7 @@ export const modules: Record<string, { label: string; fields: Field[] }> = {
       ...bilingual("subtitle", "Sous-titre"),
       ...bilingual("content", "Paragraphes", "textarea"),
       image,
+      gallery,
       ...bilingual("buttonText", "Bouton"),
       { key: "buttonUrl", label: "Lien du bouton" },
       {

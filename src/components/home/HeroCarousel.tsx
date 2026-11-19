@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-const photos = [
+import ArrowIcon from "@/components/public/ArrowIcon";
+const fallbackPhotos = [
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCYwRbrJKRQ3CobFoji4x06iRzXRtw2GQQwYJdeVAifd6tLoTukoRVDVbvPZM2t-ziZ1PO_1BtTWMvSw3wzkV-pxD1iwTfI0qmbwpbL44Rn6RS73MLGwFoOcDABHlyafW3t4VEbWDw-Ojr9KLoYKt4Nk7zVDDnWEAI6fh9hE0T7K-sZ6mNIRKRWughzBBIvPe_BV5hU1nabmTqAHL6gbnWkR39r1y6c6R30jo-pQOg",
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDP2muwB54BpZjvTNWwwpWtdtgAP_lseid6-rOP6bw7NqvxuH8BceTVI6q54sKBYzoRsxPjYkA5OxSmUP16m506PHn49ksc4uAmxdf3jMw-PO9jpWzMMs1KBTqSniYV0lYb49vHRuJ_RUXkvr51mDSWeCIF1CKao7kUpHTlDjVQXMIzCT4NfF2gFFxWOnBX-N5TTa-e8urMUDZ-6iiwkbyjb2-Qx4tBDHdmJIUiKqc",
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAPob2d-opxKAWMwOZoX9nz8iV6_a2aqvJXWpZ5edXQ1LLmdqZ0sJzXzwFFFFNOrRKuGUcajgGIEEVbVjk3_fLnHgPwaxFXnMA1Nw15_W7W_GrW7apmSsu6zgD6wYrXDgqmXh6kRMYAwcYab_G1ewa7bFeNtAkbqcgok3kllgZhIgOZ9G06ok-WwybbuuH4iZlbib9RswQwBT0VIpKUrqI5KL2R3VEdl3ejLS8gDaU",
@@ -9,7 +10,42 @@ const photos = [
 ];
 
 const INTERVAL_MS = 300_000;
-export default function HeroCarousel() {
+type Banner = Record<string, unknown> & { id: string };
+type Language = "fr" | "en";
+function localized(item: Banner, key: string, language: Language) {
+  const preferred = key + (language === "en" ? "En" : "Fr");
+  const alternate = key + (language === "en" ? "Fr" : "En");
+  return String(item[preferred] || item[alternate] || "");
+}
+export default function HeroCarousel({
+  banners = [],
+  language = "fr",
+}: {
+  banners?: Banner[];
+  language?: Language;
+}) {
+  const cmsSlides = banners
+    .map((banner) => ({
+      image: String(banner.imageUrl || banner.image || ""),
+      mobileImage: String(banner.imageMobile || ""),
+      title: localized(banner, "title", language),
+      subtitle: localized(banner, "subtitle", language),
+      description: localized(banner, "description", language),
+      ctaText: localized(banner, "ctaText", language),
+      ctaLink: String(banner.ctaLink || "/programmes"),
+    }))
+    .filter((banner) => banner.image);
+  const slides = cmsSlides.length
+    ? cmsSlides
+    : fallbackPhotos.map((image) => ({
+        image,
+        mobileImage: "",
+        title: "",
+        subtitle: "",
+        description: "",
+        ctaText: "",
+        ctaLink: "/programmes",
+      }));
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [revision, setRevision] = useState(0);
@@ -23,7 +59,7 @@ export default function HeroCarousel() {
       clearInterval(timer);
       if (!paused && !document.hidden)
         timer = setInterval(
-          () => setIndex((i) => (i + 1) % photos.length),
+        () => setIndex((i) => (i + 1) % slides.length),
           INTERVAL_MS,
         );
     };
@@ -33,28 +69,38 @@ export default function HeroCarousel() {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", schedule);
     };
-  }, [paused, revision]);
+  }, [paused, revision, slides.length]);
   function select(next: number) {
-    setIndex((next + photos.length) % photos.length);
+    setIndex((next + slides.length) % slides.length);
     setRevision((r) => r + 1);
   }
+  const activeSlide = slides[index] || slides[0];
   return (
     <section
       id="hero"
-      aria-label="Photos de la communauté ACV"
+      aria-label={language === "en" ? "ACV community photos" : "Photos de la communauté ACV"}
       aria-roledescription="carrousel"
       className="hero relative w-full h-[640px] flex items-end overflow-hidden"
     >
       <div className="absolute inset-0" id="hero-slides">
-        {photos.map((photo, i) => (
-          <img
-            key={photo}
+        {slides.map((slide, i) => (
+          <picture
+            key={slide.image}
             className={`hero-slide ${i === index ? "is-active" : ""}`}
-            src={photo}
-            alt=""
             aria-hidden="true"
-            fetchPriority={i === 0 ? "high" : "auto"}
-          />
+          >
+            {slide.mobileImage && (
+              <source
+                media="(max-width: 650px)"
+                srcSet={slide.mobileImage}
+              />
+            )}
+            <img
+              src={slide.image}
+              alt={slide.title}
+              fetchPriority={i === 0 ? "high" : "auto"}
+            />
+          </picture>
         ))}
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10"></div>
@@ -63,25 +109,28 @@ export default function HeroCarousel() {
         <div className="max-w-3xl flex flex-col items-start gap-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-on-tertiary-container text-tertiary font-eyebrow text-eyebrow tracking-widest shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-            <span>GOMA · NORD-KIVU · RDC</span>
+            <span>{language === "en" ? "GOMA · NORTH KIVU · DRC" : "GOMA · NORD-KIVU · RDC"}</span>
           </div>
           <h1 className="font-display text-headline-lg lg:text-display text-surface-container-lowest tracking-tight leading-[1.08] text-balance">
-            Ensemble, faisons grandir l’avenir des communautés.
+            {activeSlide?.title ||
+              (language === "en"
+                ? "Together, growing a future for our communities."
+                : "Ensemble, faisons grandir l’avenir des communautés.")}
           </h1>
           <p className="font-body-lg text-body-lg text-surface-container-high/90 max-w-2xl leading-relaxed">
-            Portée par la jeunesse congolaise au pied des Virunga, une approche
-            intégrée pour l'autonomie, la régénération écologique et la
-            prospérité locale.
+            {activeSlide?.description ||
+              activeSlide?.subtitle ||
+              (language === "en"
+                ? "Led by Congolese youth at the foot of the Virunga, an integrated approach to autonomy, ecological regeneration, and local prosperity."
+                : "Portée par la jeunesse congolaise au pied des Virunga, une approche intégrée pour l'autonomie, la régénération écologique et la prospérité locale.")}
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-3 w-full sm:w-auto">
             <a
               className="inline-flex items-center justify-center gap-2 bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md px-7 py-3.5 rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95"
-              href="/programmes"
+              href={activeSlide?.ctaLink || "/programmes"}
             >
-              <span>Découvrir nos programmes</span>
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_forward
-              </span>
+              <span>{activeSlide?.ctaText || (language === "en" ? "Discover our programs" : "Découvrir nos programmes")}</span>
+              <ArrowIcon className="h-[18px] w-[18px]" />
             </a>
             <a
               className="inline-flex items-center justify-center gap-2 bg-surface-container-lowest/15 backdrop-blur-md hover:bg-surface-container-lowest/25 text-surface-container-lowest font-label-md text-label-md px-7 py-3.5 rounded-xl transition-all duration-200"
@@ -90,7 +139,7 @@ export default function HeroCarousel() {
               <span className="material-symbols-outlined text-[18px] text-tertiary-fixed-dim">
                 favorite
               </span>
-              <span>Faire un don</span>
+              <span>{language === "en" ? "Donate" : "Faire un don"}</span>
             </a>
           </div>
           <div className="hero-controls" aria-label="Commandes du carrousel">
@@ -98,16 +147,16 @@ export default function HeroCarousel() {
               type="button"
               id="hero-prev"
               onClick={() => select(index - 1)}
-              aria-label="Photo précédente"
+              aria-label={language === "en" ? "Previous photo" : "Photo précédente"}
             >
               ‹
             </button>
-            {photos.map((photo, i) => (
+            {slides.map((slide, i) => (
               <button
-                key={photo}
+                key={slide.image}
                 type="button"
                 className="hero-dot"
-                aria-label={`Afficher la photo ${i + 1} sur 5`}
+                aria-label={language === "en" ? `Show photo ${i + 1} of ${slides.length}` : `Afficher la photo ${i + 1} sur ${slides.length}`}
                 aria-pressed={i === index}
                 onClick={() => select(i)}
               >
@@ -118,7 +167,7 @@ export default function HeroCarousel() {
               type="button"
               id="hero-next"
               onClick={() => select(index + 1)}
-              aria-label="Photo suivante"
+              aria-label={language === "en" ? "Next photo" : "Photo suivante"}
             >
               ›
             </button>

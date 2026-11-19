@@ -32,6 +32,19 @@ export default function ResourcePanel({
   const [detail, setDetail] = useState<ContentRecord | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   useEffect(() => {
+    if (!detail) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDetail(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [detail !== null]);
+  useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError("");
@@ -123,6 +136,7 @@ export default function ResourcePanel({
       setDeleting(null);
     }
   }
+  const receivedAt = text(detail?.createdAt || detail?.submittedAt);
   if (editor !== undefined)
     return (
       <ArticleEditor
@@ -374,21 +388,45 @@ export default function ResourcePanel({
         </div>
       </div>
       {detail && (
-        <section className="admin-message" aria-label="Détail du message">
-          <div className="admin-section-heading">
-            <h3>{text(detail.subject || detail.reason) || "Message reçu"}</h3>
-            <button
-              className="admin-button secondary"
-              onClick={() => setDetail(null)}
-            >
-              Fermer
-            </button>
-          </div>
-          <p className="admin-muted">
-            {text(detail.name)} · {text(detail.email)}
-          </p>
-          <p className="whitespace-pre-wrap mt-4">{text(detail.message)}</p>
-        </section>
+        <div
+          className="admin-message-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setDetail(null);
+          }}
+        >
+          <section
+            className="admin-message-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-message-title"
+          >
+            <div className="admin-section-heading">
+              <div>
+                <p className="admin-eyebrow">MESSAGE REÇU</p>
+                <h3 id="admin-message-title">
+                  {text(detail.subject || detail.reason) || "Message reçu"}
+                </h3>
+              </div>
+              <button
+                className="admin-button secondary"
+                autoFocus
+                onClick={() => setDetail(null)}
+              >
+                Fermer
+              </button>
+            </div>
+            <p className="admin-muted">
+              {text(detail.name)} ·{" "}
+              <a href={`mailto:${text(detail.email)}`}>{text(detail.email)}</a>
+            </p>
+            {receivedAt && (
+              <time className="admin-message-date" dateTime={receivedAt}>
+                {receivedAt}
+              </time>
+            )}
+            <p className="admin-message-content">{text(detail.message)}</p>
+          </section>
+        </div>
       )}
     </section>
   );
