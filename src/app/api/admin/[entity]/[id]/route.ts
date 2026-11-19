@@ -99,7 +99,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const merged = current
       ? Object.fromEntries(
           modules[entity].fields
-            .filter((f) => current[f.key] !== undefined)
+            .filter(
+              (f) => current[f.key] !== undefined && current[f.key] !== null,
+            )
             .map((f) => [f.key, current[f.key]]),
         )
       : {};

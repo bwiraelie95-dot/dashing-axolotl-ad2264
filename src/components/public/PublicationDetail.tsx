@@ -75,6 +75,7 @@ export default async function PublicationDetail({
               className="editorial-image"
               src={String(item.coverImage || item.imageUrl)}
               alt=""
+              decoding="async"
             />
           )}
           <div className="editorial-prose">

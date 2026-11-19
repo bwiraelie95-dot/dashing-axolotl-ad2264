@@ -13,6 +13,7 @@ function mediaUrls(item: RecordData) {
     ...new Set(
       [
         text(item.coverImage || item.imageUrl || item.image),
+        text(item.imageMobile),
         ...gallery.flatMap((photo) => {
           if (typeof photo === "string") return [photo];
           if (photo && typeof photo === "object" && "url" in photo)
@@ -45,6 +46,7 @@ export default function CmsPanel({
       ? "media"
       : [
             "status",
+            "active",
             "slug",
             "order",
             "activityDate",
@@ -58,7 +60,7 @@ export default function CmsPanel({
           ].includes(field.key)
         ? "publication"
         : "content";
-  const grouped = ["articles", "programs", "pages", "team"].includes(entity);
+  const grouped = ["articles", "programs", "pages", "team", "banners"].includes(entity);
   useEffect(() => {
     if (!dirty) return;
     const guard = (e: BeforeUnloadEvent) => {
@@ -325,6 +327,8 @@ export default function CmsPanel({
           <p className="cms-editor-help">
             {entity === "programs"
               ? "Ajoutez le récit de votre activité, ses photos et sa date. Choisissez « published » dans Publication pour la rendre visible."
+              : entity === "banners"
+                ? "Dans l’onglet Photos, remplacez l’image d’ordinateur ou ajoutez une image adaptée au mobile. Les diapositives actives apparaissent sur la page d’accueil."
               : entity === "team"
                 ? "Remplacez la photo, le nom et la fonction, puis choisissez le groupe et la visibilité."
                 : "Préparez votre contenu, vérifiez son aperçu et enregistrez vos modifications."}
@@ -736,7 +740,7 @@ export default function CmsPanel({
                   <tr>
                     <th>Contenu</th>
                     <th>Statut / rôle</th>
-                    {entity === "pages" && <th>Photos</th>}
+                    {["pages", "banners"].includes(entity) && <th>Photos</th>}
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -759,7 +763,7 @@ export default function CmsPanel({
                         </small>
                       </td>
                       <td>{text(item.status || item.role)}</td>
-                      {entity === "pages" && (
+                      {["pages", "banners"].includes(entity) && (
                         <td>
                           <div className="cms-page-media-preview">
                             {mediaUrls(item)
@@ -775,7 +779,7 @@ export default function CmsPanel({
                               className="admin-text-link"
                               onClick={() => edit(item, "media")}
                             >
-                              Gérer les photos
+                              Modifier les photos
                             </button>
                           </div>
                         </td>

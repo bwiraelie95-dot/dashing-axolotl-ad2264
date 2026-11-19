@@ -51,7 +51,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { entity: rawEntity } = await context.params;
     const entity = adminEntitySchema.parse(rawEntity);
-    const actor = await requirePermission(request, entity, 'update');
+    const actor = await requirePermission(request, entity, 'create');
     if (['auditLogs', 'media', 'donors', 'contactSubmissions', 'siteSettings'].includes(entity)) {
       throw new MethodNotAllowedError();
     }

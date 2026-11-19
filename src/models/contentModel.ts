@@ -12,6 +12,13 @@ export interface ContentQuery {
   limit?: number;
 }
 
+export interface ContentListOptions {
+  status?: string;
+  active?: boolean;
+  pageRoute?: string;
+  limit?: number;
+}
+
 export interface ContentQueryResult<T> {
   data: T[];
   total: number;
@@ -721,9 +728,31 @@ async function upsertSettings(
 
 async function listRecords<T extends DomainRecord>(
   entity: ContentEntity,
+  options: ContentListOptions = {},
 ): Promise<T[]> {
   if (entity === "siteSettings") return listSettings<T>();
-  const records = await delegateFor(entity).findMany(listArgs(entity));
+  const baseArgs = listArgs(entity) as {
+    where?: Record<string, unknown>;
+    orderBy?: unknown;
+  };
+  const filters = baseArgs.where ? [baseArgs.where] : [];
+  if (options.status && statusEntities.has(entity))
+    filters.push({ status: options.status });
+  if (options.active !== undefined && entity === "banners")
+    filters.push({ isActive: options.active });
+  if (options.pageRoute && entity === "banners")
+    filters.push({ pageRoute: options.pageRoute });
+  const where =
+    filters.length === 0
+      ? undefined
+      : filters.length === 1
+        ? filters[0]
+        : { AND: filters };
+  const records = await delegateFor(entity).findMany({
+    ...baseArgs,
+    where,
+    ...(options.limit ? { take: options.limit } : {}),
+  });
   return records.map((record) => toDomain<T>(record));
 }
 

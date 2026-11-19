@@ -75,6 +75,7 @@ export default function HeroCarousel({
     setRevision((r) => r + 1);
   }
   const activeSlide = slides[index] || slides[0];
+  const nextIndex = (index + 1) % slides.length;
   return (
     <section
       id="hero"
@@ -83,25 +84,29 @@ export default function HeroCarousel({
       className="hero relative w-full h-[640px] flex items-end overflow-hidden"
     >
       <div className="absolute inset-0" id="hero-slides">
-        {slides.map((slide, i) => (
-          <picture
-            key={slide.image}
-            className={`hero-slide ${i === index ? "is-active" : ""}`}
-            aria-hidden="true"
-          >
-            {slide.mobileImage && (
-              <source
-                media="(max-width: 650px)"
-                srcSet={slide.mobileImage}
+        {slides.map((slide, i) =>
+          i === index || i === nextIndex ? (
+            <picture
+              key={slide.image}
+              className={`hero-slide ${i === index ? "is-active" : ""}`}
+              aria-hidden="true"
+            >
+              {slide.mobileImage && (
+                <source
+                  media="(max-width: 650px)"
+                  srcSet={slide.mobileImage}
+                />
+              )}
+              <img
+                src={slide.image}
+                alt=""
+                loading={i === index ? "eager" : "lazy"}
+                decoding="async"
+                fetchPriority={i === index ? "high" : "low"}
               />
-            )}
-            <img
-              src={slide.image}
-              alt={slide.title}
-              fetchPriority={i === 0 ? "high" : "auto"}
-            />
-          </picture>
-        ))}
+            </picture>
+          ) : null,
+        )}
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent"></div>

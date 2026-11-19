@@ -25,7 +25,13 @@ export function ContentSection({
         )}
       </div>
       {!!item.coverImage && (
-        <img className="editorial-image" src={String(item.coverImage)} alt="" />
+        <img
+          className="editorial-image"
+          src={String(item.coverImage)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
       )}
       <div className="editorial-prose">
         {local(item, "content", lang)
@@ -73,6 +79,7 @@ export async function PublicationCards({
                 src={String(item.coverImage || item.imageUrl)}
                 alt=""
                 loading="lazy"
+                decoding="async"
               />
             </a>
           )}
@@ -143,6 +150,7 @@ export function Gallery({
               src={photo.url}
               alt={local(photo, "caption", lang)}
               loading="lazy"
+              decoding="async"
             />
           </a>
           {local(photo, "caption", lang) && (

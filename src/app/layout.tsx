@@ -11,6 +11,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const language = (await cookies()).get("acv-language")?.value === "en" ? "en" : "fr";
   return (
     <html lang={language} data-scroll-behavior="smooth">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="bg-surface font-body-md text-on-surface antialiased">
         {children}
       </body>
