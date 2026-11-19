@@ -5,6 +5,17 @@ export type ContentRecord = Record<string, unknown> & { id: string };
 export const textValue = (value: unknown) =>
   typeof value === "string" || typeof value === "number" ? String(value) : "";
 
+function slugFromTitle(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 191);
+}
+
 export default function ArticleEditor({
   article,
   onSaved,
@@ -18,6 +29,11 @@ export default function ArticleEditor({
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [slug, setSlug] = useState(
+    textValue(article?.slug) ||
+      slugFromTitle(textValue(article?.titleFr || article?.titleEn)),
+  );
+  const [slugEdited, setSlugEdited] = useState(Boolean(article?.slug));
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -66,6 +82,11 @@ export default function ArticleEditor({
                     minLength={3}
                     maxLength={250}
                     defaultValue={textValue(article?.[`title${language}`])}
+                    onChange={
+                      language === "Fr" && !slugEdited
+                        ? (event) => setSlug(slugFromTitle(event.target.value))
+                        : undefined
+                    }
                   />
                 </label>
                 <label>
@@ -90,6 +111,21 @@ export default function ArticleEditor({
             ))}
           </div>
           <div className="admin-two-columns">
+            <label>
+              Slug de l’article
+              <input
+                name="slug"
+                required
+                minLength={2}
+                maxLength={191}
+                value={slug}
+                onChange={(event) => {
+                  setSlug(event.target.value);
+                  setSlugEdited(Boolean(event.target.value.trim()));
+                }}
+                placeholder="titre-de-l-article"
+              />
+            </label>
             <label>
               Catégorie
               <input

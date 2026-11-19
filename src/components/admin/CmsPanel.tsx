@@ -7,6 +7,22 @@ import { safeLink } from "@/lib/cms/validation";
 type RecordData = Record<string, unknown> & { id?: string };
 type Photo = { url: string; captionFr?: string; captionEn?: string };
 const text = (v: unknown) => (v == null ? "" : String(v));
+function mediaUrls(item: RecordData) {
+  const gallery = Array.isArray(item.gallery) ? item.gallery : [];
+  return [
+    ...new Set(
+      [
+        text(item.coverImage || item.imageUrl || item.image),
+        ...gallery.flatMap((photo) => {
+          if (typeof photo === "string") return [photo];
+          if (photo && typeof photo === "object" && "url" in photo)
+            return [text(photo.url)];
+          return [];
+        }),
+      ].filter(Boolean),
+    ),
+  ];
+}
 export default function CmsPanel({
   entity,
   canEdit,
@@ -82,6 +98,27 @@ export default function CmsPanel({
     [page, setPage] = useState(1),
     [total, setTotal] = useState(0),
     [version, setVersion] = useState(0);
+  useEffect(() => {
+    if (!value) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [Boolean(value)]);
+  useEffect(() => {
+    if (!value) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      if (!dirty || window.confirm("Quitter sans enregistrer les modifications ?")) {
+        setValue(null);
+        setDirty(false);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [value, dirty]);
   const fail = (e: unknown) => {
     onError(e);
     setError(e instanceof Error ? e.message : "Opération impossible.");
@@ -115,10 +152,10 @@ export default function CmsPanel({
       });
     return () => controller.abort();
   }, [entity, page, search, version, onError]);
-  function edit(item: RecordData) {
+  function edit(item: RecordData, tab = "content") {
     setValue(item);
     setDirty(false);
-    setEditorTab("content");
+    setEditorTab(tab);
     setPreview(false);
     setRevision([]);
     setError("");
@@ -223,22 +260,51 @@ export default function CmsPanel({
     });
   };
   return (
-    <section className="admin-card cms-panel">
-      {error && (
+    <section className={`admin-card cms-panel ${value ? "cms-panel-editing" : ""}`}>
+      {!value && error && (
         <p className="admin-error" role="alert">
           {error}
         </p>
       )}
-      {notice && (
+      {!value && notice && (
         <p className="admin-success" role="status">
           {notice}
         </p>
       )}
       {value ? (
-        <>
+        <div
+          className="cms-modal-backdrop"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              (!dirty || window.confirm("Quitter sans enregistrer les modifications ?"))
+            ) {
+              setValue(null);
+              setDirty(false);
+            }
+          }}
+        >
+          <section
+            className="cms-editor-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cms-editor-title"
+          >
+            {error && (
+              <p className="admin-error" role="alert">
+                {error}
+              </p>
+            )}
+            {notice && (
+              <p className="admin-success" role="status">
+                {notice}
+              </p>
+            )}
           <div className="admin-section-heading">
             <h2>
+              <span id="cms-editor-title">
               {value.id ? "Modifier" : "Créer"} — {module.label}
+              </span>
             </h2>
             <button
               className="admin-button secondary"
@@ -354,7 +420,7 @@ export default function CmsPanel({
                         }
                       </h3>
                     )}
-                  <label
+                  <div
                     className={`admin-field ${field.type === "textarea" || field.type === "gallery" ? "cms-wide" : ""}`}
                   >
                     <span>
@@ -540,17 +606,31 @@ export default function CmsPanel({
                             />
                             {!!value[field.key] &&
                               safeLink(text(value[field.key])) && (
-                                <img
-                                  className="cms-thumbnail"
-                                  src={text(value[field.key])}
-                                  alt="Aperçu"
-                                />
+                                <>
+                                  <img
+                                    className="cms-thumbnail"
+                                    src={text(value[field.key])}
+                                    alt="Aperçu"
+                                  />
+                                </>
                               )}
                           </>
                         )}
                       </>
                     )}
-                  </label>
+                  </div>
+                  {field.type === "image" &&
+                    !!value[field.key] &&
+                    safeLink(text(value[field.key])) && (
+                      <button
+                        type="button"
+                        className="admin-button secondary"
+                        disabled={!canEdit || busy}
+                        onClick={() => update(field.key, "")}
+                      >
+                        Retirer cette image
+                      </button>
+                    )}
                 </div>
               ))}
             </div>
@@ -604,7 +684,8 @@ export default function CmsPanel({
               ))}
             </details>
           )}
-        </>
+          </section>
+        </div>
       ) : (
         <>
           <div className="admin-section-heading">
@@ -655,6 +736,7 @@ export default function CmsPanel({
                   <tr>
                     <th>Contenu</th>
                     <th>Statut / rôle</th>
+                    {entity === "pages" && <th>Photos</th>}
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -677,6 +759,27 @@ export default function CmsPanel({
                         </small>
                       </td>
                       <td>{text(item.status || item.role)}</td>
+                      {entity === "pages" && (
+                        <td>
+                          <div className="cms-page-media-preview">
+                            {mediaUrls(item)
+                              .slice(0, 3)
+                              .map((url) => (
+                                <img key={url} src={url} alt="" />
+                              ))}
+                            <span>
+                              {mediaUrls(item).length} photo
+                              {mediaUrls(item).length === 1 ? "" : "s"}
+                            </span>
+                            <button
+                              className="admin-text-link"
+                              onClick={() => edit(item, "media")}
+                            >
+                              Gérer les photos
+                            </button>
+                          </div>
+                        </td>
+                      )}
                       <td>
                         <button
                           className="admin-text-link"

@@ -14,6 +14,7 @@ import CmsPanel from "./CmsPanel";
 import { modules } from "@/lib/cms/modules";
 import { can } from "@/lib/permissions";
 import ResourcePanel from "./ResourcePanel";
+import LanguageSwitch from "@/components/public/LanguageSwitch";
 
 const navigation = [
   { id: "overview", label: "Vue d’ensemble", icon: "space_dashboard" },
@@ -22,6 +23,7 @@ const navigation = [
       [
         "articles",
         "programs",
+        "banners",
         "team",
         "stats",
         "siteSettings",
@@ -37,6 +39,7 @@ const navigation = [
           {
             articles: "article",
             programs: "forest",
+            banners: "image",
             team: "groups",
             stats: "monitoring",
             siteSettings: "tune",
@@ -51,12 +54,39 @@ const navigation = [
   { id: "donors", label: "Registre des dons", icon: "volunteer_activism" },
 ] as const;
 type Tab = (typeof navigation)[number]["id"];
+const englishLabels: Record<string, string> = {
+  overview: "Overview",
+  articles: "Journal & articles",
+  programs: "Programs & activities",
+  banners: "Hero / Slides",
+  team: "Team",
+  stats: "Impact figures",
+  siteSettings: "Site settings",
+  pages: "Pages & content",
+  users: "Users",
+  media: "Media library",
+  auditLogs: "Audit log",
+  contactSubmissions: "Messages",
+  donors: "Donations",
+};
 export default function AdminWorkspace() {
   const router = useRouter();
   const [user, setUser] = useState<AdminSession | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [tab, setTab] = useState<Tab>("overview");
+  const [language, setLanguage] = useState<"fr" | "en">("fr");
+  const [navigationOpen, setNavigationOpen] = useState(false);
+  const english = language === "en";
+  useEffect(() => {
+    setLanguage(
+      document.cookie
+        .split("; ")
+        .some((cookie) => cookie === "acv-language=en")
+        ? "en"
+        : "fr",
+    );
+  }, []);
   const logout = useCallback(() => {
     sessionStorage.removeItem(SESSION_KEY);
     router.replace("/admin/login");
@@ -113,7 +143,18 @@ export default function AdminWorkspace() {
     );
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      {navigationOpen && (
+        <button
+          className="admin-nav-backdrop"
+          type="button"
+          aria-label={english ? "Close navigation" : "Fermer la navigation"}
+          onClick={() => setNavigationOpen(false)}
+        />
+      )}
+      <aside
+        id="admin-navigation"
+        className={`admin-sidebar ${navigationOpen ? "is-open" : ""}`}
+      >
         <Link href="/" className="admin-brand">
           <img src="/assets/brand/acv-logo.jpeg" alt="" />
           <span>
@@ -130,14 +171,17 @@ export default function AdminWorkspace() {
             .map((item) => (
               <button
                 key={item.id}
-                onClick={() => setTab(item.id)}
+                onClick={() => {
+                  setTab(item.id);
+                  setNavigationOpen(false);
+                }}
                 aria-current={tab === item.id ? "page" : undefined}
                 className={tab === item.id ? "active" : ""}
               >
                 <span className="material-symbols-outlined" aria-hidden="true">
                   {item.icon}
                 </span>
-                {item.label}
+                {english ? englishLabels[item.id] || item.label : item.label}
               </button>
             ))}
         </nav>
@@ -152,17 +196,40 @@ export default function AdminWorkspace() {
       </aside>
       <div className="admin-main">
         <header className="admin-topbar">
-          <div>
+          <div className="admin-topbar-heading">
+            <button
+              className="admin-nav-toggle"
+              type="button"
+              aria-controls="admin-navigation"
+              aria-expanded={navigationOpen}
+              aria-label={
+                navigationOpen
+                  ? english
+                    ? "Close navigation"
+                    : "Fermer la navigation"
+                  : english
+                    ? "Open navigation"
+                    : "Ouvrir la navigation"
+              }
+              onClick={() => setNavigationOpen((open) => !open)}
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                menu
+              </span>
+            </button>
+            <div>
             <span className="admin-eyebrow">AFRICA COMMUNITY VILLAGE</span>
-            <p>Espace d’administration</p>
+            <p>{english ? "Administration" : "Espace d’administration"}</p>
+            </div>
           </div>
           <div className="admin-account">
             <span>
               <strong>{user.name}</strong>
               <small>{user.role}</small>
             </span>
+            <LanguageSwitch language={language} />
             <button className="admin-button secondary" onClick={logout}>
-              Déconnexion
+              {english ? "Log out" : "Déconnexion"}
             </button>
           </div>
         </header>
@@ -170,26 +237,40 @@ export default function AdminWorkspace() {
           <div className="admin-page-title">
             <div>
               <p className="admin-eyebrow">COMMUNAUTÉ · TERRAIN · IMPACT</p>
-              <h1>{navigation.find((item) => item.id === tab)?.label}</h1>
+              <h1>
+                {english
+                  ? englishLabels[tab]
+                  : navigation.find((item) => item.id === tab)?.label}
+              </h1>
               <p className="admin-muted">
                 {tab === "overview"
-                  ? "Les dernières informations de votre organisation, au même endroit."
-                  : "Données enregistrées dans votre espace ACV."}
+                  ? english
+                    ? "The latest information from your organization, all in one place."
+                    : "Les dernières informations de votre organisation, au même endroit."
+                  : english
+                    ? "Information saved in your ACV workspace."
+                    : "Données enregistrées dans votre espace ACV."}
               </p>
             </div>
             <span className="admin-status">
               <span />
-              Session active
+              {english ? "Active session" : "Session active"}
             </span>
           </div>
           {tab === "overview" && (
             <section className="admin-welcome">
               <div>
-                <p className="admin-eyebrow">VOTRE ESPACE ACV</p>
-                <h2>Bonjour, {user.name.split(" ")[0]}.</h2>
+                <p className="admin-eyebrow">
+                  {english ? "YOUR ACV WORKSPACE" : "VOTRE ESPACE ACV"}
+                </p>
+                <h2>
+                  {english ? "Welcome" : "Bonjour"},{" "}
+                  {user.name.split(" ")[0]}.
+                </h2>
                 <p>
-                  Retrouvez vos contenus et les actions accessibles à votre
-                  rôle.
+                  {english
+                    ? "Find your content and the actions available to your role."
+                    : "Retrouvez vos contenus et les actions accessibles à votre rôle."}
                 </p>
                 <span className="role-chip">
                   {(
@@ -209,28 +290,34 @@ export default function AdminWorkspace() {
                 {[
                   {
                     id: "programs",
-                    label: "Gérer les programmes",
+                    label: english ? "Manage programs" : "Gérer les programmes",
                     icon: "forest",
                   },
                   {
                     id: "articles",
-                    label: "Ouvrir le journal",
+                    label: english ? "Open journal" : "Ouvrir le journal",
                     icon: "article",
                   },
                   {
                     id: "team",
-                    label: "Mettre à jour l’équipe",
+                    label: english ? "Update the team" : "Mettre à jour l’équipe",
                     icon: "groups",
                   },
                   {
                     id: "donors",
-                    label: "Consulter les dons",
+                    label: english ? "View donations" : "Consulter les dons",
                     icon: "payments",
                   },
                 ]
                   .filter((item) => can(user.role, item.id, "read"))
                   .map((item) => (
-                    <button key={item.id} onClick={() => setTab(item.id)}>
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setTab(item.id);
+                        setNavigationOpen(false);
+                      }}
+                    >
                       <span
                         className="material-symbols-outlined"
                         aria-hidden="true"

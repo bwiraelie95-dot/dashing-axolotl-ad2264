@@ -38,7 +38,7 @@ export default async function PublicationDetail({
     .slice(0, 3);
   return (
     <>
-      <Header />
+      <Header language={lang} />
       <main className="public-page">
         <article className="editorial-container">
           <a

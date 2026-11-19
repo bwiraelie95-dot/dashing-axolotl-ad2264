@@ -2,9 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-export default function Header() {
+import LanguageSwitch from "@/components/public/LanguageSwitch";
+export default function Header({
+  language = "fr",
+}: {
+  language?: "fr" | "en";
+}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const english = language === "en";
   return (
     <header
       id="site-header"
@@ -34,23 +40,26 @@ export default function Header() {
           onClick={(event) => {
             if ((event.target as HTMLElement).closest("a")) setMenuOpen(false);
           }}
-          aria-label="Navigation principale"
+          aria-label={english ? "Main navigation" : "Navigation principale"}
           className={`main-navigation ${menuOpen ? "is-open" : ""}`}
           data-active-classes="text-primary-container font-headline-sm border-b-2 border-primary-container"
         >
+          <div className="header-language-mobile">
+            <LanguageSwitch language={language} />
+          </div>
           <a
             aria-current={pathname === "/" ? "page" : undefined}
             className={`transition-colors py-2 ${pathname === "/" ? "text-primary-container border-b-2 border-primary-container" : "text-on-surface-variant"}`}
             href="/"
           >
-            Accueil
+            {english ? "Home" : "Accueil"}
           </a>
           <div className="relative group py-2">
             <button
               className="flex items-center gap-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
               type="button"
             >
-              <span>À propos</span>
+              <span>{english ? "About" : "À propos"}</span>
               <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
                 expand_more
               </span>
@@ -60,7 +69,7 @@ export default function Header() {
                 className="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"
                 href="/notre-histoire"
               >
-                Notre histoire
+                {english ? "Our story" : "Notre histoire"}
               </a>
 
 
@@ -68,7 +77,7 @@ export default function Header() {
                 className="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"
                 href="/notre-equipe"
               >
-                Notre équipe
+                {english ? "Our team" : "Notre équipe"}
               </a>
             </div>
           </div>
@@ -76,28 +85,31 @@ export default function Header() {
             className="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2"
             href="/programmes"
           >
-            Programmes
+            {english ? "Programs" : "Programmes"}
           </a>
           <a
             className="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2"
             href="/notre-approche"
           >
-            Notre approche
+            {english ? "Our approach" : "Notre approche"}
           </a>
           <a
             className="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2"
             href="/journal"
           >
-            Journal
+            {english ? "Journal" : "Journal"}
           </a>
           <a
             className="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-2"
             href="/contact"
           >
-            Contact
+            {english ? "Contact" : "Contact"}
           </a>
         </nav>
         <div className="flex items-center gap-3 shrink-0">
+          <div className="header-language-desktop">
+            <LanguageSwitch language={language} />
+          </div>
           <a
             className="hidden sm:inline-flex items-center gap-2 bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md px-5 py-2.5 rounded-xl transition-all shadow-[0_4px_16px_-2px_rgba(68,48,30,0.05)] active:scale-98"
             href="/#don"
@@ -105,12 +117,12 @@ export default function Header() {
             <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
               favorite
             </span>
-            <span>Faire un don</span>
+            <span>{english ? "Donate" : "Faire un don"}</span>
           </a>
           <Link
             href="/admin/login"
-            aria-label="Connexion administrateur"
-            title="Connexion administrateur"
+            aria-label={english ? "Administrator login" : "Connexion administrateur"}
+            title={english ? "Administrator login" : "Connexion administrateur"}
             className="admin-login-link w-11 h-11 rounded-full bg-primary flex items-center justify-center shrink-0"
           >
             <span aria-hidden="true" className="material-symbols-outlined text-on-primary text-[18px]">
@@ -124,7 +136,15 @@ export default function Header() {
         id="menu-toggle"
         aria-controls="main-navigation"
         aria-expanded={menuOpen}
-        aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        aria-label={
+          menuOpen
+            ? english
+              ? "Close menu"
+              : "Fermer le menu"
+            : english
+              ? "Open menu"
+              : "Ouvrir le menu"
+        }
         onClick={() => setMenuOpen(!menuOpen)}
       >
         {menuOpen ? "×" : "☰"}

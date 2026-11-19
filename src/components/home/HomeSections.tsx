@@ -1,6 +1,14 @@
 import { PublicationCards } from "@/components/public/Editorial";
+import ArrowIcon from "@/components/public/ArrowIcon";
 import { contentModel } from "@/models/contentModel";
-export default async function HomeSections() {
+export default async function HomeSections({
+  language,
+}: {
+  language: "fr" | "en";
+}) {
+  const english = language === "en";
+  const t = (french: string, englishText: string) =>
+    english ? englishText : french;
   const [stats, programs, articles] = await Promise.all([
     contentModel.list<Record<string, unknown> & { id: string }>("stats"),
     contentModel.list<Record<string, unknown> & { id: string }>("programs"),
@@ -18,7 +26,7 @@ export default async function HomeSections() {
             <div className="lg:col-span-6 flex flex-col items-start gap-6">
               <div className="flex items-center gap-3">
                 <span className="font-eyebrow text-eyebrow text-on-tertiary-container tracking-widest uppercase">
-                  QUI SOMMES-NOUS
+                  {t("QUI SOMMES-NOUS", "WHO WE ARE")}
                 </span>
                 <div className="h-0.5 w-12 bg-on-tertiary-container rounded-full"></div>
               </div>
@@ -26,22 +34,16 @@ export default async function HomeSections() {
                 data-reveal
                 className="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-tight"
               >
-                Né à Goma. Bâti pour durer.
+                {t("Né à Goma. Bâti pour durer.", "Born in Goma. Built to last.")}
               </h2>
               <div className="flex flex-col gap-4 text-on-surface-variant font-body-md text-body-md leading-relaxed">
                 <p>
-                  Face aux défis chroniques du Nord-Kivu, des jeunes leaders
-                  congolais ont choisi de ne plus subir. Africa Community
-                  Village (ACV) est né d'un constat d'évidence : la pérennité
-                  naît de l'ancrage profond, de la dignité partagée et de la fin
-                  du paternalisme humanitaire.
+                  {t("Face aux défis chroniques du Nord-Kivu, des jeunes leaders", "In response to the chronic challenges facing North Kivu, young Congolese leaders")}
+                  {t(" congolais ont choisi de ne plus subir. Africa Community Village (ACV) est né d'un constat d'évidence : la pérennité naît de l'ancrage profond, de la dignité partagée et de la fin du paternalisme humanitaire.", " chose to shape their own future. Africa Community Village (ACV) was born from a simple conviction: lasting change grows from local roots, shared dignity, and an end to paternalistic aid.")}
                 </p>
                 <p>
-                  Nous plaçons les villageois et la jeunesse au cœur de leur
-                  propre trajectoire. En valorisant les savoirs agroécologiques
-                  locaux, les dynamiques coopératives et l’intégrité écologique
-                  du paysage des Virunga, nous tissons un modèle communautaire
-                  autosuffisant et souverain.
+                  {t("Nous plaçons les villageois et la jeunesse au cœur de leur", "We place communities and young people at the heart of their")}
+                  {t(" propre trajectoire. En valorisant les savoirs agroécologiques locaux, les dynamiques coopératives et l’intégrité écologique du paysage des Virunga, nous tissons un modèle communautaire autosuffisant et souverain.", " own journey. By valuing local agroecological knowledge, cooperative initiatives, and the ecological integrity of the Virunga landscape, we are building a self-reliant, community-led model.")}
                 </p>
               </div>
               <div className="pt-2">
@@ -49,10 +51,8 @@ export default async function HomeSections() {
                   className="inline-flex items-center gap-3 bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md px-6 py-3 rounded-xl transition-all duration-200 group"
                   href="/notre-histoire"
                 >
-                  <span>Découvrir nos origines</span>
-                  <span className="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">
-                    arrow_forward
-                  </span>
+                  <span>{t("Découvrir nos origines", "Discover our story")}</span>
+                  <ArrowIcon className="h-[18px] w-[18px] transition-transform group-hover:translate-x-1" />
                 </a>
               </div>
             </div>
@@ -76,10 +76,10 @@ export default async function HomeSections() {
                   </div>
                   <div className="flex flex-col">
                     <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">
-                      Impact direct
+                      {t("Impact direct", "Direct impact")}
                     </span>
                     <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                      Ancrage communautaire 100% local
+                      {t("Ancrage communautaire 100% local", "100% community-rooted")}
                     </span>
                   </div>
                 </div>
@@ -93,17 +93,16 @@ export default async function HomeSections() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center gap-3">
             <span className="font-eyebrow text-eyebrow text-secondary uppercase tracking-widest">
-              NOTRE MODÈLE INTÉGRÉ
+              {t("NOTRE MODÈLE INTÉGRÉ", "OUR INTEGRATED MODEL")}
             </span>
             <h2
               data-reveal
               className="font-headline-lg text-headline-lg text-on-surface tracking-tight"
             >
-              Cinq piliers, un modèle communautaire
+              {t("Cinq piliers, un modèle communautaire", "Five pillars, one community-led model")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Une réponse holistique aux réalités vécues pour transformer
-              durablement le quotidien des villages du Nord-Kivu.
+              {t("Une réponse holistique aux réalités vécues pour transformer durablement le quotidien des villages du Nord-Kivu.", "A holistic response to lived realities, designed to improve daily life in North Kivu communities for the long term.")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -118,22 +117,18 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Éducation et jeunesse
+                  {t("Éducation et jeunesse", "Education and youth")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Mentorat, bourses de scolarisation rurale, ateliers de
-                  leadership éthique et clubs scientifiques pour révéler le
-                  potentiel des jeunes filles et garçons.
+                  {t("Mentorat, bourses de scolarisation rurale, ateliers de leadership éthique et clubs scientifiques pour révéler le potentiel des jeunes filles et garçons.", "Mentoring, rural education scholarships, ethical leadership workshops, and science clubs help girls and boys reach their potential.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary group-hover:text-primary-container transition-colors"
                 href="/education-jeunesse"
               >
-                <span>En savoir plus</span>
-                <span className="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">
-                  arrow_forward
-                </span>
+                <span>{t("En savoir plus", "Learn more")}</span>
+                <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
@@ -148,22 +143,18 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Nature et biodiversité
+                  {t("Nature et biodiversité", "Nature and biodiversity")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Pépinières villageoises et corridors de reboisement d’essences
-                  indigènes en périphérie du parc national des Virunga, cogérés
-                  avec les gardiens coutumiers.
+                  {t("Pépinières villageoises et corridors de reboisement d’essences indigènes en périphérie du parc national des Virunga, cogérés avec les gardiens coutumiers.", "Community nurseries and native-species reforestation corridors around Virunga National Park, co-managed with customary stewards.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center gap-1.5 font-label-md text-label-md text-secondary group-hover:text-on-secondary-container transition-colors"
                 href="/nature-biodiversite"
               >
-                <span>En savoir plus</span>
-                <span className="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">
-                  arrow_forward
-                </span>
+                <span>{t("En savoir plus", "Learn more")}</span>
+                <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
@@ -178,22 +169,18 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Agriculture & sécurité alimentaire
+                  {t("Agriculture & sécurité alimentaire", "Agriculture & food security")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Agroécologie paysanne, banques de semences reproductibles,
-                  compostage volcanique et souveraineté alimentaire face aux
-                  crises économiques récurrentes.
+                  {t("Agroécologie paysanne, banques de semences reproductibles, compostage volcanique et souveraineté alimentaire face aux crises économiques récurrentes.", "Farmer-led agroecology, reusable seed banks, volcanic-soil composting, and food sovereignty in the face of recurring economic crises.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary group-hover:text-primary-container transition-colors"
                 href="/agriculture"
               >
-                <span>En savoir plus</span>
-                <span className="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">
-                  arrow_forward
-                </span>
+                <span>{t("En savoir plus", "Learn more")}</span>
+                <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
@@ -208,22 +195,18 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Santé et bien-être
+                  {t("Santé et bien-être", "Health and well-being")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Accès équitable à l'eau potable via des bornes gravitaires,
-                  éducation sanitaire d'urgence et soutien psychosocial aux
-                  familles vulnérables.
+                  {t("Accès équitable à l'eau potable via des bornes gravitaires, éducation sanitaire d'urgence et soutien psychosocial aux familles vulnérables.", "Equitable access to clean water through gravity-fed taps, emergency health education, and psychosocial support for vulnerable families.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary group-hover:text-primary-container transition-colors"
                 href="/sante"
               >
-                <span>En savoir plus</span>
-                <span className="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">
-                  arrow_forward
-                </span>
+                <span>{t("En savoir plus", "Learn more")}</span>
+                <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
@@ -238,22 +221,18 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Autonomisation socio-économique
+                  {t("Autonomisation socio-économique", "Socio-economic empowerment")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Coopératives d'épargne villageoise (AVEC), ateliers de
-                  formation aux métiers de l’énergie propre, valorisation de
-                  l'artisanat textile et maraîcher local.
+                  {t("Coopératives d'épargne villageoise (AVEC), ateliers de formation aux métiers de l’énergie propre, valorisation de l'artisanat textile et maraîcher local.", "Village savings and loan associations, training in clean-energy trades, and support for local textile crafts and market gardening.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center gap-1.5 font-label-md text-label-md text-secondary group-hover:text-on-secondary-container transition-colors"
                 href="/autonomisation"
               >
-                <span>En savoir plus</span>
-                <span className="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">
-                  arrow_forward
-                </span>
+                <span>{t("En savoir plus", "Learn more")}</span>
+                <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
           </div>
@@ -275,9 +254,7 @@ export default async function HomeSections() {
               data-reveal
               className="font-headline-md sm:font-headline-lg text-headline-md sm:text-headline-lg font-bold leading-tight mb-12 text-balance text-surface-container-lowest"
             >
-              « Quand les jeunes prennent l’initiative, les communautés se
-              transforment. Quand les communautés prospèrent, l’Afrique s’élève.
-              »
+              {t("« Quand les jeunes prennent l’initiative, les communautés se transforment. Quand les communautés prospèrent, l’Afrique s’élève. »", "“When young people take the lead, communities transform. When communities thrive, Africa rises.”")}
             </blockquote>
 
             <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-y border-on-primary/15 mb-8">
@@ -288,7 +265,7 @@ export default async function HomeSections() {
                     : "—"}
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
-                  Jeunes formés & accompagnés
+                  {t("Jeunes formés & accompagnés", "Young people trained & supported")}
                 </span>
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
@@ -296,7 +273,7 @@ export default async function HomeSections() {
                   5
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
-                  Piliers d'intervention coordonnés
+                  {t("Piliers d'intervention coordonnés", "Coordinated areas of work")}
                 </span>
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
@@ -304,7 +281,7 @@ export default async function HomeSections() {
                   {articles.filter((a) => a.status === "published").length}
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
-                  Articles publiés
+                  {t("Articles publiés", "Articles published")}
                 </span>
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
@@ -312,7 +289,7 @@ export default async function HomeSections() {
                   {programs.filter((p) => p.status === "published").length}
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
-                  Programmes publiés
+                  {t("Programmes publiés", "Programs published")}
                 </span>
               </div>
             </div>
@@ -320,7 +297,7 @@ export default async function HomeSections() {
               <span className="material-symbols-outlined text-[16px] text-tertiary-fixed">
                 verified
               </span>
-              <span>Chiffres enregistrés et mis à jour par l’équipe ACV</span>
+              <span>{t("Chiffres enregistrés et mis à jour par l’équipe ACV", "Figures recorded and updated by the ACV team")}</span>
             </div>
           </div>
         </div>
@@ -331,23 +308,21 @@ export default async function HomeSections() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
             <div className="flex flex-col gap-2">
               <span className="font-eyebrow text-eyebrow text-on-tertiary-container uppercase tracking-widest">
-                RÉCITS DE TERRAIN
+                {t("RÉCITS DE TERRAIN", "FIELD STORIES")}
               </span>
               <h2
                 data-reveal
                 className="font-headline-lg text-headline-lg text-on-surface tracking-tight"
               >
-                La voix de nos villages
+                {t("La voix de nos villages", "Voices from our communities")}
               </h2>
             </div>
             <a
               className="inline-flex items-center gap-2 text-primary font-label-md text-label-md hover:underline shrink-0"
               href="/programmes"
             >
-              <span>Voir nos programmes</span>
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_right_alt
-              </span>
+              <span>{t("Voir nos programmes", "Explore our programs")}</span>
+              <ArrowIcon className="h-[18px] w-[18px]" />
             </a>
           </div>
           <PublicationCards
@@ -360,7 +335,7 @@ export default async function HomeSections() {
               )
               .slice(0, 3)}
             kind="programmes"
-            lang="fr"
+            lang={language}
           />
         </div>
       </section>
@@ -369,17 +344,16 @@ export default async function HomeSections() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-16 flex flex-col items-center gap-3">
             <span className="font-eyebrow text-eyebrow text-on-tertiary-container uppercase tracking-widest">
-              IMPLICATION CITOYENNE
+              {t("IMPLICATION CITOYENNE", "GET INVOLVED")}
             </span>
             <h2
               data-reveal
               className="font-headline-lg text-headline-lg text-on-surface tracking-tight"
             >
-              Prendre part au changement
+              {t("Prendre part au changement", "Be part of the change")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Chaque voix, chaque talent et chaque engagement compte pour
-              accélérer la transition durable au Kivu.
+              {t("Chaque voix, chaque talent et chaque engagement compte pour accélérer la transition durable au Kivu.", "Every voice, talent, and act of commitment matters in accelerating a sustainable future in Kivu.")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -394,19 +368,17 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Devenir bénévole
+                  {t("Devenir bénévole", "Volunteer with us")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Rejoignez nos brigades d'action directe à Goma, Sake ou
-                  Rutshuru : animation d'ateliers, reboisement ou accompagnement
-                  logistique sur le terrain.
+                  {t("Rejoignez nos brigades d'action directe à Goma, Sake ou Rutshuru : animation d'ateliers, reboisement ou accompagnement logistique sur le terrain.", "Join our field teams in Goma, Sake, or Rutshuru to lead workshops, support reforestation, or help with field logistics.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center justify-center bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-3 px-5 rounded-xl transition-colors"
                 href="/contact"
               >
-                Postuler sur le terrain
+                {t("Postuler sur le terrain", "Apply to volunteer")}
               </a>
             </div>
 
@@ -421,19 +393,17 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Devenir partenaire
+                  {t("Devenir partenaire", "Become a partner")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Universités, fondations philanthropiques, ONG partenaires :
-                  co-construisons des programmes durables régis par la
-                  co-responsabilité et l'intégrité.
+                  {t("Universités, fondations philanthropiques, ONG partenaires : co-construisons des programmes durables régis par la co-responsabilité et l'intégrité.", "Universities, philanthropic foundations, and NGO partners can work with us to build sustainable programs grounded in shared responsibility and integrity.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center justify-center bg-secondary hover:bg-on-secondary-container text-on-secondary font-label-md text-label-md py-3 px-5 rounded-xl transition-colors"
                 href="/contact"
               >
-                Initier un partenariat
+                {t("Initier un partenariat", "Start a partnership")}
               </a>
             </div>
 
@@ -448,19 +418,17 @@ export default async function HomeSections() {
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">
-                  Soutenir nos actions
+                  {t("Soutenir nos actions", "Support our work")}
                 </h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6">
-                  Participez directement au financement d'arbres, de kits
-                  scolaires ruraux ou de matériel pour les pépinières
-                  villageoises avec un suivi transparent.
+                  {t("Participez directement au financement d'arbres, de kits scolaires ruraux ou de matériel pour les pépinières villageoises avec un suivi transparent.", "Help fund trees, rural school kits, or community nursery equipment, with transparent updates on the impact of your contribution.")}
                 </p>
               </div>
               <a
                 className="inline-flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md py-3 px-5 rounded-xl transition-colors shadow-sm"
                 href="/#don"
               >
-                Faire un don direct
+                {t("Faire un don direct", "Donate directly")}
               </a>
             </div>
           </div>
