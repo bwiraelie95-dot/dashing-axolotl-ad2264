@@ -6,7 +6,7 @@
 # Preview builds must never migrate the shared production database.
 [context.production]
   # Loopia uses a direct MySQL connection for both runtime and migrations.
-  command = 'DIRECT_URL="$DATABASE_URL" npx prisma migrate resolve --rolled-back 20261116190000_cms_foundations && DIRECT_URL="$DATABASE_URL" npm run db:migrate && npm run build'
+  command = 'DIRECT_URL="$DATABASE_URL" npm run db:migrate && npm run build'
 
 [build.environment]
   NODE_VERSION = "22"
