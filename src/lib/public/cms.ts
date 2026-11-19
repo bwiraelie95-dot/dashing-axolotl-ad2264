@@ -31,27 +31,43 @@ export const getSettings = cache(async () => {
   ) as Record<string, unknown>;
 });
 export const getPublicSite = cache(async () => {
-  const [settings, pages, banners, programs, articles, team, stats, lang] =
-    await Promise.all([
-      getSettings(),
-      contentModel.list<Item>("pages"),
-      contentModel.list<Item>("banners"),
-      contentModel.list<Item>("programs"),
-      contentModel.list<Item>("articles"),
-      prisma.teamMember.findMany({
+  const [
+    settings,
+    pageResults,
+    bannerResults,
+    programResults,
+    articleResults,
+    team,
+    statResults,
+    lang,
+  ] = await Promise.all([
+    getSettings(),
+    contentModel.list<Item>("pages", { status: "published" }),
+    contentModel.list<Item>("banners", {
+      active: true,
+      pageRoute: "/",
+      limit: 10,
+    }),
+    contentModel.list<Item>("programs", { status: "published" }),
+    contentModel.list<Item>("articles", { status: "published" }),
+    prisma.teamMember.findMany({
         where: { deletedAt: null, status: "visible" },
         orderBy: { orderIndex: "asc" },
-      }),
-      contentModel.list<Item>("stats"),
-      getLanguage(),
-    ]);
+    }),
+    contentModel.list<Item>("stats", { status: "active" }),
+    getLanguage(),
+  ]);
+  const pages = pageResults;
+  const banners = bannerResults;
+  const programs = programResults;
+  const articles = articleResults;
   const publishedArticles = articles
-    .filter((x) => x.status === "published")
     .sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
-  const publishedPrograms = programs.filter((x) => x.status === "published");
-  const verified = stats.filter(
+  const publishedPrograms = programs;
+  const homeStats = statResults;
+  const verified = homeStats.filter(
     (x) =>
-      x.status === "active" && x.verified === true && !!x.source && !!x.period,
+      x.verified === true && !!x.source && !!x.period,
   );
   const global = verified
     .filter((x) => x.scope === "global")
@@ -59,7 +75,7 @@ export const getPublicSite = cache(async () => {
   return {
     lang,
     settings,
-    pages: pages.filter((x) => x.status === "published"),
+    pages,
     banners: banners
       .filter(
         (x) =>
@@ -74,6 +90,7 @@ export const getPublicSite = cache(async () => {
     programs: publishedPrograms,
     articles: publishedArticles,
     team,
+    homeStats,
     stats: verified,
     counts: {
       articles: publishedArticles.length,

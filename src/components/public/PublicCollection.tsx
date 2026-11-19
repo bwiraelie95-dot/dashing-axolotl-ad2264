@@ -71,6 +71,8 @@ export default function PublicCollection({ resource }: { resource: string }) {
               src={text(item.photoUrl || item.coverImage)}
               alt=""
               className="w-full h-64 object-cover rounded-xl mb-6"
+              loading="lazy"
+              decoding="async"
             />
           )}
           <h2>

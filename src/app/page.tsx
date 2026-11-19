@@ -14,7 +14,12 @@ export default async function HomePage() {
       <ScrollEffects />
       <main id="accueil" className="w-full bg-surface">
         <HeroCarousel banners={site.banners} language={site.lang} />
-        <HomeSections language={site.lang} />
+        <HomeSections
+          language={site.lang}
+          stats={site.homeStats}
+          programs={site.programs}
+          articles={site.articles}
+        />
         <DonationSection language={site.lang} />
       </main>
       <Footer />

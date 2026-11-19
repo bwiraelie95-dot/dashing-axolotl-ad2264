@@ -250,6 +250,8 @@ export default async function Page({
                               text(m.photoUrl) || "/assets/brand/acv-logo.jpeg"
                             }
                             alt={text(m.name)}
+                            loading="lazy"
+                            decoding="async"
                           />
                           {m.demo === true && (
                             <span>
@@ -291,6 +293,8 @@ export default async function Page({
                 <img
                   src={text(restoration?.coverImage) || photos[1]}
                   alt={english ? "Community-led landscape restoration" : "Restauration des terres par la communauté"}
+                  loading="lazy"
+                  decoding="async"
                 />
                 {block("goma-restoration") || (
                   <article className="story-block">

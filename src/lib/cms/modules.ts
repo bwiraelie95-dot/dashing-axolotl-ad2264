@@ -49,7 +49,7 @@ export const pillars = [
 ];
 export const modules: Record<string, { label: string; fields: Field[] }> = {
   banners: {
-    label: "Hero / Slides",
+    label: "Bannières de l’accueil",
     fields: [
       ...bilingual("title", "Titre"),
       ...bilingual("eyebrow", "Surtitre"),
@@ -57,11 +57,11 @@ export const modules: Record<string, { label: string; fields: Field[] }> = {
       ...bilingual("description", "Description", "textarea"),
       {
         key: "imageUrl",
-        label: "Image ordinateur",
+        label: "Photo de la bannière (ordinateur)",
         type: "image",
         required: true,
       },
-      { key: "imageMobile", label: "Image mobile", type: "image" },
+      { key: "imageMobile", label: "Photo de la bannière (mobile)", type: "image" },
       ...bilingual("ctaText", "Bouton principal"),
       { key: "ctaLink", label: "Lien principal" },
       ...bilingual("secondaryText", "Bouton secondaire"),

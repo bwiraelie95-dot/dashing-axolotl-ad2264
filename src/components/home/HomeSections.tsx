@@ -1,19 +1,20 @@
 import { PublicationCards } from "@/components/public/Editorial";
 import ArrowIcon from "@/components/public/ArrowIcon";
-import { contentModel } from "@/models/contentModel";
-export default async function HomeSections({
+import type { Item } from "@/lib/public/cms";
+export default function HomeSections({
   language,
+  stats,
+  programs,
+  articles,
 }: {
   language: "fr" | "en";
+  stats: Item[];
+  programs: Item[];
+  articles: Item[];
 }) {
   const english = language === "en";
   const t = (french: string, englishText: string) =>
     english ? englishText : french;
-  const [stats, programs, articles] = await Promise.all([
-    contentModel.list<Record<string, unknown> & { id: string }>("stats"),
-    contentModel.list<Record<string, unknown> & { id: string }>("programs"),
-    contentModel.list<Record<string, unknown> & { id: string }>("articles"),
-  ]);
   const impact = stats.find(
     (s) => s.displayPage === "home" && s.status === "active",
   );
@@ -65,6 +66,8 @@ export default async function HomeSections({
                     className="w-full h-full object-cover"
                     alt="Young Congolese community leaders and agrarian specialists smiling together while inspecting a nursery of indigenous trees with Lake Kivu and mount Nyiragongo landscape in warm morning light, candid, authentic, dignified"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP2muwB54BpZjvTNWwwpWtdtgAP_lseid6-rOP6bw7NqvxuH8BceTVI6q54sKBYzoRsxPjYkA5OxSmUP16m506PHn49ksc4uAmxdf3jMw-PO9jpWzMMs1KBTqSniYV0lYb49vHRuJ_RUXkvr51mDSWeCIF1CKao7kUpHTlDjVQXMIzCT4NfF2gFFxWOnBX-N5TTa-e8urMUDZ-6iiwkbyjb2-Qx4tBDHdmJIUiKqc"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
@@ -278,7 +281,7 @@ export default async function HomeSections({
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
                 <span className="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">
-                  {articles.filter((a) => a.status === "published").length}
+                  {articles.length}
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
                   {t("Articles publiés", "Articles published")}
@@ -286,7 +289,7 @@ export default async function HomeSections({
               </div>
               <div className="flex flex-col items-center border-l-0 md:border-l border-on-primary/15">
                 <span className="font-display text-headline-lg lg:text-display font-extrabold text-tertiary-fixed leading-none">
-                  {programs.filter((p) => p.status === "published").length}
+                  {programs.length}
                 </span>
                 <span className="font-body-sm text-body-sm text-primary-fixed mt-2">
                   {t("Programmes publiés", "Programs published")}
@@ -326,8 +329,7 @@ export default async function HomeSections({
             </a>
           </div>
           <PublicationCards
-            items={programs
-              .filter((p) => p.status === "published")
+            items={[...programs]
               .sort((a, b) =>
                 String(b.activityDate || b.createdAt).localeCompare(
                   String(a.activityDate || a.createdAt),

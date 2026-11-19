@@ -58,7 +58,7 @@ const englishLabels: Record<string, string> = {
   overview: "Overview",
   articles: "Journal & articles",
   programs: "Programs & activities",
-  banners: "Hero / Slides",
+  banners: "Home banners",
   team: "Team",
   stats: "Impact figures",
   siteSettings: "Site settings",
@@ -297,6 +297,13 @@ export default function AdminWorkspace() {
                     id: "articles",
                     label: english ? "Open journal" : "Ouvrir le journal",
                     icon: "article",
+                  },
+                  {
+                    id: "banners",
+                    label: english
+                      ? "Edit home photos"
+                      : "Modifier les photos de l’accueil",
+                    icon: "image",
                   },
                   {
                     id: "team",
