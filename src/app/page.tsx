@@ -19,6 +19,8 @@ export default async function HomePage() {
           stats={site.homeStats}
           programs={site.programs}
           articles={site.articles}
+          pages={site.pages}
+          team={site.team}
         />
         <DonationSection language={site.lang} />
       </main>

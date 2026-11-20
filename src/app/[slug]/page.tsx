@@ -1,3 +1,4 @@
+import PagePhotos from "@/components/public/PagePhotos";
 import { notFound } from "next/navigation";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
@@ -79,7 +80,9 @@ export default async function Page({
         {!!local(p, "subtitle", language) && (
           <h3>{local(p, "subtitle", language)}</h3>
         )}
+        {!!p.coverImage && <img src={text(p.coverImage)} alt={local(p, "title", language)} className="w-full rounded-xl mb-6" loading="lazy" />}
         <p>{local(p, "content", language)}</p>
+        <PagePhotos item={p} language={language} />
         {!!p.buttonUrl && (
           <a className="admin-text-link" href={text(p.buttonUrl)}>
             {local(p, "buttonText", language)} →
@@ -115,9 +118,7 @@ export default async function Page({
     "notre-approche": photos[1],
     journal: "/assets/images/acv_hero_education_skills_1792692599936.jpg",
   };
-  const background = backgroundImages[slug]
-    ? text(intro?.coverImage) || backgroundImages[slug]
-    : "";
+  const background = text(intro?.coverImage) || backgroundImages[slug] || "";
   const items = (isJournal ? articles : programs)
     .filter((i) => i.status === "published")
     .sort((a, b) =>
@@ -158,6 +159,7 @@ export default async function Page({
           </div>
         </div>
         <div className="interior-body">
+          <PagePhotos item={intro} language={language} />
           {isHistory && (
             <>
               <div className="story-split">
@@ -183,6 +185,7 @@ export default async function Page({
                 {block("mission")}
               </div>
               <section className="values-section">
+                <PagePhotos item={section(isHistory ? "values" : "theory")} language={language} cover />
                 <p className="section-kicker">
                   {english ? "WHAT GUIDES US" : "CE QUI NOUS GUIDE"}
                 </p>
@@ -196,9 +199,12 @@ export default async function Page({
                     const p = section("value-" + (i + 1));
                     return p ? (
                       <article key={i} data-reveal>
+                        {!!p.coverImage && <img src={text(p.coverImage)} alt="" className="w-full rounded-xl mb-4" loading="lazy" />}
                         <span>0{i + 1}</span>
                         <h3>{local(p, "title", language)}</h3>
-                        <p>{local(p, "content", language)}</p>
+                        {!!p.coverImage && <img src={text(p.coverImage)} alt={local(p, "title", language)} className="w-full rounded-xl mb-6" loading="lazy" />}
+        <p>{local(p, "content", language)}</p>
+        <PagePhotos item={p} language={language} />
                       </article>
                     ) : null;
                   })}
@@ -286,6 +292,7 @@ export default async function Page({
                   : "Chaque initiative part des réalités du terrain. Les communautés définissent les priorités ; ACV accompagne les compétences, les collaborations et les solutions qui renforcent leur autonomie."}
                 </p>
               </div>
+              <PagePhotos item={section("principles")} language={language} cover />
               <div className="values-cards approach-principles">
                 {[1, 2, 3, 4].map((i) => block("principle-" + i))}
               </div>
@@ -327,6 +334,7 @@ export default async function Page({
                 </div>
               )}
               <section className="values-section">
+                <PagePhotos item={section(isHistory ? "values" : "theory")} language={language} cover />
                 <p className="section-kicker">
                   {english ? "THEORY OF CHANGE" : "THÉORIE DU CHANGEMENT"}
                 </p>
@@ -440,8 +448,8 @@ export default async function Page({
             !isJournal &&
             slug !== "contact" && (
               <div className="story-copy">
-                {fallback[slug].paragraphs?.map((p) => (
-                  <p key={p}>{p}</p>
+                {(local(intro, "content", language) ? local(intro, "content", language).split("\n\n") : fallback[slug].paragraphs || []).map((p, i) => (
+                  <p key={i}>{p}</p>
                 ))}
               </div>
             )}
