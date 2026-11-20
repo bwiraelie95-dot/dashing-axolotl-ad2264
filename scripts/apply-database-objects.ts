@@ -1,6 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import mysql from 'mysql2/promise';
+import mysql, { type RowDataPacket } from 'mysql2/promise';
+
+type TriggerInspection = RowDataPacket & {
+  TRIGGER_NAME: string;
+  EVENT_OBJECT_TABLE: string;
+  ACTION_TIMING: string;
+  EVENT_MANIPULATION: string;
+  uses_current_definer: number;
+};
 
 function statementsFromSql(source: string): string[] {
   const statements: string[] = [];
@@ -24,6 +32,52 @@ function statementsFromSql(source: string): string[] {
   return statements;
 }
 
+async function logTriggerDefiners(
+  connection: mysql.Connection,
+  stage: 'before' | 'after'
+) {
+  const [rows] = await connection.query<TriggerInspection[]>(`
+    SELECT
+      TRIGGER_NAME,
+      EVENT_OBJECT_TABLE,
+      ACTION_TIMING,
+      EVENT_MANIPULATION,
+      DEFINER = CURRENT_USER() AS uses_current_definer
+    FROM information_schema.TRIGGERS
+    WHERE TRIGGER_SCHEMA = DATABASE()
+      AND EVENT_OBJECT_TABLE IN ('articles', 'team_members')
+    ORDER BY EVENT_OBJECT_TABLE, TRIGGER_NAME
+  `);
+
+  if (!rows.length) {
+    if (stage === 'after') {
+      throw new Error('No article/team triggers were found after recreating database objects.');
+    }
+    console.log(`[database] ${stage}: no article/team triggers found.`);
+    return;
+  }
+
+  console.log(
+    `[database] ${stage} article/team triggers: ${rows
+      .map(
+        (row) =>
+          `${row.EVENT_OBJECT_TABLE}.${row.TRIGGER_NAME} ` +
+          `(${row.ACTION_TIMING} ${row.EVENT_MANIPULATION}, ` +
+          `current definer: ${row.uses_current_definer === 1 ? 'yes' : 'no'})`
+      )
+      .join('; ')}`
+  );
+
+  if (
+    stage === 'after' &&
+    rows.some((row) => row.uses_current_definer !== 1)
+  ) {
+    throw new Error(
+      'Recreated article/team triggers do not use the active database account as their definer.'
+    );
+  }
+}
+
 async function main() {
   const rawUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
   if (!rawUrl) throw new Error('DIRECT_URL or DATABASE_URL is required.');
@@ -38,7 +92,9 @@ async function main() {
   });
   const sql = await readFile(path.join(process.cwd(), 'database', 'advanced_objects.sql'), 'utf8');
   try {
+    await logTriggerDefiners(connection, 'before');
     for (const statement of statementsFromSql(sql)) await connection.query(statement);
+    await logTriggerDefiners(connection, 'after');
     console.log('ACV views, routines, functions and triggers are installed.');
   } finally {
     await connection.end();
