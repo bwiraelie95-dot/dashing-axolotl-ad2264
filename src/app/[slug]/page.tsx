@@ -7,7 +7,7 @@ import ContactForm from "@/components/public/ContactForm";
 import { contentModel } from "@/models/contentModel";
 import { pages as fallback } from "@/lib/public/pages";
 import { PublicationCards } from "@/components/public/Editorial";
-import { getLanguage, local } from "@/lib/public/cms";
+import { getLanguage, getSettings, local } from "@/lib/public/cms";
 export const dynamic = "force-dynamic";
 type Item = Record<string, unknown> & { id: string };
 const text = (v: unknown) => String(v || "");
@@ -64,12 +64,12 @@ export default async function Page({
     contentModel.list<Item>("team"),
     contentModel.list<Item>("programs"),
     contentModel.list<Item>("articles"),
-    contentModel.list<Item>("siteSettings"),
+    getSettings(),
   ]);
-  const s = settings[0] || {};
+  const s = settings;
   const section = (key: string) =>
     sections.find((p) => p.slug === key && p.status === "published");
-  const block = (key: string) => {
+  const block = (key: string, withPhoto = true) => {
     const p = section(key);
     return p ? (
       <article className="story-block" key={key} data-reveal>
@@ -80,9 +80,9 @@ export default async function Page({
         {!!local(p, "subtitle", language) && (
           <h3>{local(p, "subtitle", language)}</h3>
         )}
-        {!!p.coverImage && <img src={text(p.coverImage)} alt={local(p, "title", language)} className="w-full rounded-xl mb-6" loading="lazy" />}
+        {withPhoto && !!p.coverImage && <img src={text(p.coverImage)} alt={local(p, "title", language)} className="story-photo" loading="lazy" />}
         <p>{local(p, "content", language)}</p>
-        <PagePhotos item={p} language={language} />
+        {withPhoto && <PagePhotos item={p} language={language} />}
         {!!p.buttonUrl && (
           <a className="admin-text-link" href={text(p.buttonUrl)}>
             {local(p, "buttonText", language)} →
@@ -106,7 +106,7 @@ export default async function Page({
           typeof photo === "object" &&
           photo !== null &&
           "url" in photo &&
-          typeof photo.url === "string",
+          typeof photo.url === "string" && !!local(photo, "caption", language).trim() && photo.url !== restoration?.coverImage,
       )
     : [];
   const pageSize = isPrograms ? 9 : 10;
@@ -130,7 +130,7 @@ export default async function Page({
     <>
       <Header language={language} />
       <ScrollEffects />
-      <main className="public-page interior">
+      <main className={`public-page interior ${isApproach ? "approach-page" : ""}`}>
         <div
           className={`interior-intro ${background ? "page-photo-hero" : ""}`}
         >
@@ -185,7 +185,6 @@ export default async function Page({
                 {block("mission")}
               </div>
               <section className="values-section">
-                <PagePhotos item={section(isHistory ? "values" : "theory")} language={language} cover />
                 <p className="section-kicker">
                   {english ? "WHAT GUIDES US" : "CE QUI NOUS GUIDE"}
                 </p>
@@ -202,9 +201,7 @@ export default async function Page({
                         {!!p.coverImage && <img src={text(p.coverImage)} alt="" className="w-full rounded-xl mb-4" loading="lazy" />}
                         <span>0{i + 1}</span>
                         <h3>{local(p, "title", language)}</h3>
-                        {!!p.coverImage && <img src={text(p.coverImage)} alt={local(p, "title", language)} className="w-full rounded-xl mb-6" loading="lazy" />}
-        <p>{local(p, "content", language)}</p>
-        <PagePhotos item={p} language={language} />
+                        <p>{local(p, "content", language)}</p>
                       </article>
                     ) : null;
                   })}
@@ -292,9 +289,8 @@ export default async function Page({
                   : "Chaque initiative part des réalités du terrain. Les communautés définissent les priorités ; ACV accompagne les compétences, les collaborations et les solutions qui renforcent leur autonomie."}
                 </p>
               </div>
-              <PagePhotos item={section("principles")} language={language} cover />
               <div className="values-cards approach-principles">
-                {[1, 2, 3, 4].map((i) => block("principle-" + i))}
+                {[1, 2, 3, 4].map((i) => <div className="approach-step" key={i}><span className="approach-step-number">0{i}</span>{block("principle-" + i, false)}</div>)}
               </div>
               <div className="story-two feature-project">
                 <img
@@ -303,7 +299,7 @@ export default async function Page({
                   loading="lazy"
                   decoding="async"
                 />
-                {block("goma-restoration") || (
+                {block("goma-restoration", false) || (
                   <article className="story-block">
                     <p className="section-kicker">
                       {english ? "COMMUNITY PROJECT" : "PROJET COMMUNAUTAIRE"}
@@ -334,7 +330,6 @@ export default async function Page({
                 </div>
               )}
               <section className="values-section">
-                <PagePhotos item={section(isHistory ? "values" : "theory")} language={language} cover />
                 <p className="section-kicker">
                   {english ? "THEORY OF CHANGE" : "THÉORIE DU CHANGEMENT"}
                 </p>
@@ -352,12 +347,12 @@ export default async function Page({
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i}>
                       <span>0{i}</span>
-                      {block("phase-" + i)}
+                      {block("phase-" + i, false)}
                     </div>
                   ))}
                 </div>
               </section>
-              <div className="ubuntu-panel">{block("ubuntu")}</div>
+              <div className="ubuntu-panel">{block("ubuntu", false)}</div>
             </>
           )}
           {(isPrograms || isJournal) && (

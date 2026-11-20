@@ -2672,3 +2672,38 @@ html {
 .page-content-gallery figure { overflow: hidden; border-radius: 18px; }
 .page-content-gallery img { width: 100%; height: clamp(180px, 28vw, 360px); object-fit: cover; }
 .page-content-gallery figcaption { padding: 12px; font-size: 14px; }
+
+/* A quieter editor: content and photos first, optional settings on demand. */
+.cms-simple-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; margin: 20px 0; background: #f5f3ed; border-radius: 14px; }
+.cms-simple-toolbar p { margin: 0; color: #655d52; font-size: 14px; max-width: 600px; }
+.admin-field small { display: block; color: #746d65; line-height: 1.5; margin-bottom: 8px; }
+.story-photo { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 16px; margin: 16px 0 24px; }
+.values-cards > article > img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; }
+.footer-contact-link { margin-top: 8px; font-weight: 700; }
+
+/* Approach: readable steps, one contextual project image, clear progression. */
+.approach-page .interior-body { max-width: 1160px; }
+.approach-page .story-split { align-items: start; gap: clamp(28px, 6vw, 80px); margin-bottom: 48px; }
+.approach-page .approach-principles { gap: 20px; }
+.approach-step { position: relative; padding: 28px; border: 1px solid #e7e2d8; border-radius: 20px; background: #fffefa; }
+.approach-step-number { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: #edf3ee; color: #256356; font-weight: 700; margin-bottom: 20px; }
+.approach-step .story-block { padding: 0; border: 0; background: none; }
+.approach-step .section-kicker { display: none; }
+.approach-page .approach-principles h2 { font-size: clamp(21px, 2vw, 27px); line-height: 1.25; margin: 0 0 12px; }
+.approach-page .story-block p { line-height: 1.8; }
+.approach-page .feature-project { margin: 64px 0; background: #eef3ee; grid-template-columns: 1fr 1fr; }
+.approach-page .feature-project > img { height: 100%; min-height: 380px; }
+.approach-page .feature-project .story-block { padding: clamp(24px, 4vw, 48px); }
+.approach-page .change-phases { gap: 18px; margin-top: 32px; }
+.approach-page .change-phases > div { padding: 24px; background: #faf8f3; border-top: 3px solid #9bb3a3; border-radius: 0 0 16px 16px; }
+.approach-page .change-phases h2 { font-size: 20px; line-height: 1.3; margin: 16px 0 12px; }
+.approach-page .change-phases h3 { font-size: 15px; }
+.approach-page .ubuntu-panel { margin-top: 56px; }
+.approach-page .ubuntu-panel .story-block { border-radius: 24px; background: #223e36; }
+@media (max-width: 900px) { .approach-page .change-phases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .approach-page .approach-principles, .approach-page .change-phases, .approach-page .feature-project { grid-template-columns: 1fr; }
+  .approach-page .feature-project > img { min-height: 0; height: 250px; }
+  .approach-step { padding: 22px; }
+  .approach-page .ubuntu-panel .story-block { padding: 28px; }
+}

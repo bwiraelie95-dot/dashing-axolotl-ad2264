@@ -1,3 +1,4 @@
+import { withContactDefaults } from "./contact-defaults";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { contentModel } from "@/models/contentModel";
@@ -24,11 +25,11 @@ export function local(
 export const getSettings = cache(async () => {
   const allowed = new Set(modules.siteSettings.fields.map((f) => f.key));
   const rows = await prisma.setting.findMany({ where: { isPublic: true } });
-  return Object.fromEntries(
+  return withContactDefaults(Object.fromEntries(
     rows
       .filter((r) => allowed.has(r.settingKey))
       .map((r) => [r.settingKey, r.settingValue]),
-  ) as Record<string, unknown>;
+  ) as Record<string, unknown>);
 });
 export const getPublicSite = cache(async () => {
   const [
