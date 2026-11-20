@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { adminRequest } from "@/lib/client/admin-api";
 
 import { modules, type Field } from "@/lib/cms/modules";
+import { essentialFields, pageLocation } from "@/lib/cms/editor-fields";
 import { safeLink } from "@/lib/cms/validation";
 type RecordData = Record<string, unknown> & { id?: string };
 type Photo = { url: string; captionFr?: string; captionEn?: string };
@@ -34,6 +35,7 @@ export default function CmsPanel({
   onError: (e: unknown) => void;
 }) {
   const module = modules[entity];
+  const [advanced, setAdvanced] = useState(false);
   const [editorTab, setEditorTab] = useState("content");
   const [dirty, setDirty] = useState(false);
   const tabs = [
@@ -156,6 +158,7 @@ export default function CmsPanel({
   }, [entity, page, search, version, onError]);
   function edit(item: RecordData, tab = "content") {
     setValue(item);
+    setAdvanced(false);
     setDirty(false);
     setEditorTab(tab);
     setPreview(false);
@@ -180,6 +183,13 @@ export default function CmsPanel({
         )
         .map((f) => [f.key, value[f.key]]),
     );
+    // New French-first records also have a usable English fallback.
+    for (const field of module.fields) {
+      if (field.key.endsWith("En") && !payload[field.key]) {
+        const french = payload[field.key.slice(0, -2) + "Fr"];
+        if (typeof french === "string" && french.trim()) payload[field.key] = french;
+      }
+    }
     try {
       await adminRequest(
         `cms/${entity}${value.id ? "/" + encodeURIComponent(value.id) : ""}`,
@@ -234,6 +244,7 @@ export default function CmsPanel({
         v
           ? {
               ...v,
+              ...(entity === "banners" && field.key === "imageUrl" && !advanced ? { imageMobile: text(media[0].url || media[0].fileUrl) } : {}),
               [field.key]:
                 field.type === "gallery"
                   ? [
@@ -357,6 +368,10 @@ export default function CmsPanel({
               ))}
             </div>
           )}
+          {essentialFields[entity] && !preview && <div className="cms-simple-toolbar">
+            <p>{entity === "pages" && value.slug ? pageLocation(value.slug) : "Remplissez le contenu, choisissez une photo, puis enregistrez."}</p>
+            <button type="button" className="admin-text-link" aria-expanded={advanced} onClick={() => setAdvanced(v => !v)}>{advanced ? "Revenir aux champs essentiels" : "Options avancées et traduction"}</button>
+          </div>}
           {preview ? (
             <div className="cms-preview">
               <p className="admin-eyebrow">APERÇU · NON ENREGISTRÉ</p>
@@ -392,7 +407,7 @@ export default function CmsPanel({
             </div>
           ) : (
             <div className="cms-fields">
-              {module.fields.map((field) => (
+              {module.fields.filter(field => advanced || !essentialFields[entity] || essentialFields[entity].includes(field.key)).map((field) => (
                 <div
                   key={field.key}
                   hidden={grouped && fieldGroup(field) !== editorTab}
@@ -431,6 +446,9 @@ export default function CmsPanel({
                       {field.label}
                       {field.required ? " *" : ""}
                     </span>
+                    {["buttonUrl", "ctaLink", "secondaryUrl", "centralUrl"].includes(field.key) && <small>Page ouverte au clic sur le bouton, par exemple /contact. Facultatif.</small>}
+                    {field.type === "gallery" && entity === "pages" && <small>Ajoutez une légende à chaque photo pour qu’elle apparaisse sur le site. L’image principale n’est pas répétée dans la galerie.</small>}
+                    {field.key === "imageUrl" && entity === "banners" && !advanced && <small>Cette photo sera utilisée sur ordinateur et mobile.</small>}
                     {field.key === "programExternalId" ? (
                       <select
                         aria-label={field.label}
@@ -572,7 +590,7 @@ export default function CmsPanel({
                       </div>
                     ) : (
                       <>
-                        <input
+                        {(field.type !== "image" || advanced) && <input
                           aria-label={field.label}
                           type={
                             field.type === "number"
@@ -596,7 +614,7 @@ export default function CmsPanel({
                                 : e.target.value,
                             )
                           }
-                        />
+                        />}
                         {field.type === "image" && (
                           <>
                             <input
@@ -693,7 +711,7 @@ export default function CmsPanel({
       ) : (
         <>
           {(entity === "banners" || entity === "pages") && <p className="admin-note mb-5">
-            {entity === "banners" ? "Les diapositives de l’accueil sont prêtes. Utilisez Photos pour remplacer une image, puis enregistrez les modifications." : "Les pages et leurs photos sont préparées. Utilisez Photos pour remplacer une image. La clé de section relie le contenu au site : conservez-la lors de vos modifications. home-story correspond au bloc histoire de l’accueil ; about à Notre histoire ; approach à Notre approche."}
+            {entity === "banners" ? "Les diapositives de l’accueil sont prêtes. Utilisez Photos pour remplacer une image, puis enregistrez les modifications." : "Pour changer la photo « Né à Goma. Bâti pour durer. », recherchez ce titre, cliquez sur Photos, choisissez votre image et enregistrez."}
           </p>}
           <div className="admin-section-heading">
             <input
@@ -762,7 +780,7 @@ export default function CmsPanel({
                           )}
                         </strong>
                         <small>
-                          {text(item.slug || item.email || item.lastLogin)}
+                          {entity === "pages" ? pageLocation(item.slug) : text(item.slug || item.email || item.lastLogin)}
                         </small>
                       </td>
                       <td>{text(item.status || item.role)}</td>

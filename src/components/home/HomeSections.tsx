@@ -8,14 +8,12 @@ export default function HomeSections({
   programs,
   articles,
   pages,
-  team,
 }: {
   language: "fr" | "en";
   stats: Item[];
   programs: Item[];
   articles: Item[];
   pages: Item[];
-  team: Item[];
 }) {
   const english = language === "en";
   const t = (french: string, englishText: string) =>
@@ -27,7 +25,6 @@ export default function HomeSections({
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 pt-10"><PagePhotos item={pages.find(p => p.slug === "home")} language={language} cover /></div>
       <section id="histoire" className="w-full py-24 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -336,7 +333,7 @@ export default function HomeSections({
                   String(a.activityDate || a.createdAt),
                 ),
               )
-              .slice(0, 5)}
+              .slice(0, 3)}
             kind="programmes"
             lang={language}
           />
@@ -346,30 +343,10 @@ export default function HomeSections({
       <section id="journal" className="w-full py-24 bg-surface-container">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-headline-lg text-headline-lg mb-10">{t("Journal & articles", "Journal & articles")}</h2>
-          <PublicationCards items={articles.slice(0, 5)} kind="articles" lang={language} />
+          <PublicationCards items={articles.slice(0, 3)} kind="articles" lang={language} />
           <a className="admin-text-link inline-block mt-8" href="/journal">{t("Tout le journal →", "All articles →")}</a>
         </div>
       </section>
-      <section className="w-full py-24 bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-headline-lg text-headline-lg mb-10">{t("Notre équipe", "Our team")}</h2>
-          <div className="team-cards">{team.slice(0, 5).map(member => <article key={member.id}>
-            <div className="team-portrait"><img src={String(member.photoUrl || "/assets/demo/profile.svg")} alt={String(member.name)} loading="lazy" />{member.demo === true && <span>{t("Profil de démonstration", "Demo profile")}</span>}</div>
-            <h3>{String(member.name)}</h3><p>{local(member, "role", language)}</p>
-          </article>)}</div>
-          <a className="admin-text-link inline-block mt-8" href="/notre-equipe">{t("Toute l’équipe →", "Meet everyone →")}</a>
-        </div>
-      </section>
-      <section className="w-full py-16 bg-surface-container">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-headline-lg text-headline-lg mb-10">{t("Nos indicateurs", "Our indicators")}</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">{stats.slice(0, 5).map(stat => <article key={stat.id} className="admin-card">
-            <p className="font-headline-sm text-headline-sm">{stat.verified === true && !!stat.source && !!stat.period ? String(stat.value) + String(stat.suffix || "") : t("À renseigner", "Pending data")}</p>
-            <h3>{local(stat, "label", language)}</h3>
-          </article>)}</div>
-        </div>
-      </section>
-
       <section className="w-full py-24 bg-surface-container">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-16 flex flex-col items-center gap-3">
@@ -464,7 +441,6 @@ export default function HomeSections({
           </div>
         </div>
       </section>
-      <div className="max-w-7xl mx-auto px-4 pb-10"><PagePhotos item={pages.find(p => p.slug === "home-cta")} language={language} cover /></div>
     </>
   );
 }

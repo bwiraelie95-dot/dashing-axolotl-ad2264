@@ -63,7 +63,7 @@ export const modules: Record<string, { label: string; fields: Field[] }> = {
       },
       { key: "imageMobile", label: "Photo de la bannière (mobile)", type: "image" },
       ...bilingual("ctaText", "Bouton principal"),
-      { key: "ctaLink", label: "Lien principal" },
+      { key: "ctaLink", label: "Page à ouvrir au clic (facultatif)" },
       ...bilingual("secondaryText", "Bouton secondaire"),
       { key: "secondaryUrl", label: "Lien secondaire" },
       ...bilingual("centralText", "Bouton central"),
@@ -89,7 +89,7 @@ export const modules: Record<string, { label: string; fields: Field[] }> = {
       image,
       gallery,
       ...bilingual("buttonText", "Bouton"),
-      { key: "buttonUrl", label: "Lien du bouton" },
+      { key: "buttonUrl", label: "Page à ouvrir au clic (facultatif)" },
       {
         key: "villageCouncilVerified",
         label: "Vérification documentée par les conseils de village",
