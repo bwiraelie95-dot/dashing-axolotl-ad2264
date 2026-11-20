@@ -1,12 +1,11 @@
 [build]
-  command = 'DIRECT_URL="$DATABASE_URL" npm run db:deploy && npm run build'
+  command = "npm run build"
   publish = ".next"
 
-# Apply committed schema migrations before publishing production code.
-# Preview builds must never migrate the shared production database.
+# Apply migrations and recreate advanced database objects only in production.
+# Deploy previews must not modify the shared production database.
 [context.production]
-  # Loopia uses a direct MySQL connection for both runtime and migrations.
-  command = 'DIRECT_URL="$DATABASE_URL" npm run db:migrate && npm run build'
+  command = 'DIRECT_URL="$DATABASE_URL" npm run db:deploy && npm run build'
 
 [build.environment]
   NODE_VERSION = "22"
