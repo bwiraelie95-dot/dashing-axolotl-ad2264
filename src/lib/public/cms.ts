@@ -50,10 +50,7 @@ export const getPublicSite = cache(async () => {
     }),
     contentModel.list<Item>("programs", { status: "published" }),
     contentModel.list<Item>("articles", { status: "published" }),
-    prisma.teamMember.findMany({
-        where: { deletedAt: null, status: "visible" },
-        orderBy: { orderIndex: "asc" },
-    }),
+    contentModel.list<Item>("team", { status: "visible" }),
     contentModel.list<Item>("stats", { status: "active" }),
     getLanguage(),
   ]);

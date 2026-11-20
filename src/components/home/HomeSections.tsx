@@ -1,26 +1,33 @@
+import PagePhotos from "@/components/public/PagePhotos";
 import { PublicationCards } from "@/components/public/Editorial";
 import ArrowIcon from "@/components/public/ArrowIcon";
-import type { Item } from "@/lib/public/cms";
+import { local, type Item } from "@/lib/public/cms";
 export default function HomeSections({
   language,
   stats,
   programs,
   articles,
+  pages,
+  team,
 }: {
   language: "fr" | "en";
   stats: Item[];
   programs: Item[];
   articles: Item[];
+  pages: Item[];
+  team: Item[];
 }) {
   const english = language === "en";
   const t = (french: string, englishText: string) =>
     english ? englishText : french;
+  const story = pages.find(p => p.slug === "home-story");
   const impact = stats.find(
-    (s) => s.displayPage === "home" && s.status === "active",
+    (s) => s.displayPage === "home" && s.status === "active" && s.verified === true && !!s.source && !!s.period,
   );
 
   return (
     <>
+      <div className="max-w-7xl mx-auto px-4 pt-10"><PagePhotos item={pages.find(p => p.slug === "home")} language={language} cover /></div>
       <section id="histoire" className="w-full py-24 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -35,17 +42,10 @@ export default function HomeSections({
                 data-reveal
                 className="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-tight"
               >
-                {t("Né à Goma. Bâti pour durer.", "Born in Goma. Built to last.")}
+                {local(story, "title", language) || t("Né à Goma. Bâti pour durer.", "Born in Goma. Built to last.")}
               </h2>
               <div className="flex flex-col gap-4 text-on-surface-variant font-body-md text-body-md leading-relaxed">
-                <p>
-                  {t("Face aux défis chroniques du Nord-Kivu, des jeunes leaders", "In response to the chronic challenges facing North Kivu, young Congolese leaders")}
-                  {t(" congolais ont choisi de ne plus subir. Africa Community Village (ACV) est né d'un constat d'évidence : la pérennité naît de l'ancrage profond, de la dignité partagée et de la fin du paternalisme humanitaire.", " chose to shape their own future. Africa Community Village (ACV) was born from a simple conviction: lasting change grows from local roots, shared dignity, and an end to paternalistic aid.")}
-                </p>
-                <p>
-                  {t("Nous plaçons les villageois et la jeunesse au cœur de leur", "We place communities and young people at the heart of their")}
-                  {t(" propre trajectoire. En valorisant les savoirs agroécologiques locaux, les dynamiques coopératives et l’intégrité écologique du paysage des Virunga, nous tissons un modèle communautaire autosuffisant et souverain.", " own journey. By valuing local agroecological knowledge, cooperative initiatives, and the ecological integrity of the Virunga landscape, we are building a self-reliant, community-led model.")}
-                </p>
+                {local(story, "content", language).split("\n\n").filter(Boolean).map((paragraph, i) => <p key={i}>{paragraph}</p>)}
               </div>
               <div className="pt-2">
                 <a
@@ -64,8 +64,8 @@ export default function HomeSections({
                 <div className="relative rounded-3xl overflow-hidden shadow-xl bg-surface-container-low aspect-[4/3]">
                   <img
                     className="w-full h-full object-cover"
-                    alt="Young Congolese community leaders and agrarian specialists smiling together while inspecting a nursery of indigenous trees with Lake Kivu and mount Nyiragongo landscape in warm morning light, candid, authentic, dignified"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP2muwB54BpZjvTNWwwpWtdtgAP_lseid6-rOP6bw7NqvxuH8BceTVI6q54sKBYzoRsxPjYkA5OxSmUP16m506PHn49ksc4uAmxdf3jMw-PO9jpWzMMs1KBTqSniYV0lYb49vHRuJ_RUXkvr51mDSWeCIF1CKao7kUpHTlDjVQXMIzCT4NfF2gFFxWOnBX-N5TTa-e8urMUDZ-6iiwkbyjb2-Qx4tBDHdmJIUiKqc"
+                    alt={local(story, "title", language)}
+                    src={String(story?.coverImage || "/assets/banners/home-2.jpg")}
                     loading="lazy"
                     decoding="async"
                   />
@@ -89,6 +89,7 @@ export default function HomeSections({
               </div>
             </div>
           </div>
+          <PagePhotos item={story} language={language} />
         </div>
       </section>
 
@@ -335,10 +336,37 @@ export default function HomeSections({
                   String(a.activityDate || a.createdAt),
                 ),
               )
-              .slice(0, 3)}
+              .slice(0, 5)}
             kind="programmes"
             lang={language}
           />
+        </div>
+      </section>
+
+      <section id="journal" className="w-full py-24 bg-surface-container">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-headline-lg text-headline-lg mb-10">{t("Journal & articles", "Journal & articles")}</h2>
+          <PublicationCards items={articles.slice(0, 5)} kind="articles" lang={language} />
+          <a className="admin-text-link inline-block mt-8" href="/journal">{t("Tout le journal →", "All articles →")}</a>
+        </div>
+      </section>
+      <section className="w-full py-24 bg-surface">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-headline-lg text-headline-lg mb-10">{t("Notre équipe", "Our team")}</h2>
+          <div className="team-cards">{team.slice(0, 5).map(member => <article key={member.id}>
+            <div className="team-portrait"><img src={String(member.photoUrl || "/assets/demo/profile.svg")} alt={String(member.name)} loading="lazy" />{member.demo === true && <span>{t("Profil de démonstration", "Demo profile")}</span>}</div>
+            <h3>{String(member.name)}</h3><p>{local(member, "role", language)}</p>
+          </article>)}</div>
+          <a className="admin-text-link inline-block mt-8" href="/notre-equipe">{t("Toute l’équipe →", "Meet everyone →")}</a>
+        </div>
+      </section>
+      <section className="w-full py-16 bg-surface-container">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-headline-lg text-headline-lg mb-10">{t("Nos indicateurs", "Our indicators")}</h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">{stats.slice(0, 5).map(stat => <article key={stat.id} className="admin-card">
+            <p className="font-headline-sm text-headline-sm">{stat.verified === true && !!stat.source && !!stat.period ? String(stat.value) + String(stat.suffix || "") : t("À renseigner", "Pending data")}</p>
+            <h3>{local(stat, "label", language)}</h3>
+          </article>)}</div>
         </div>
       </section>
 
@@ -436,6 +464,7 @@ export default function HomeSections({
           </div>
         </div>
       </section>
+      <div className="max-w-7xl mx-auto px-4 pb-10"><PagePhotos item={pages.find(p => p.slug === "home-cta")} language={language} cover /></div>
     </>
   );
 }

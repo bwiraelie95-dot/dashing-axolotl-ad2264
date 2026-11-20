@@ -18,6 +18,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:advanced": "tsx scripts/apply-database-objects.ts",
     "db:deploy": "npm run db:migrate && npm run db:advanced",
+    "content:prepare": "tsx scripts/prepare-manager-content.ts",
     "db:local:start": "bash scripts/start-local-db.sh"
   },
   "dependencies": {

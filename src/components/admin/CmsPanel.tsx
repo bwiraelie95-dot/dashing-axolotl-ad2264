@@ -692,6 +692,9 @@ export default function CmsPanel({
         </div>
       ) : (
         <>
+          {(entity === "banners" || entity === "pages") && <p className="admin-note mb-5">
+            {entity === "banners" ? "Les diapositives de l’accueil sont prêtes. Utilisez Photos pour remplacer une image, puis enregistrez les modifications." : "Les pages et leurs photos sont préparées. Utilisez Photos pour remplacer une image. La clé de section relie le contenu au site : conservez-la lors de vos modifications. home-story correspond au bloc histoire de l’accueil ; about à Notre histoire ; approach à Notre approche."}
+          </p>}
           <div className="admin-section-heading">
             <input
               aria-label="Rechercher"

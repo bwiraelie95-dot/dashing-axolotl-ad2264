@@ -1,13 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import ArrowIcon from "@/components/public/ArrowIcon";
-const fallbackPhotos = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCYwRbrJKRQ3CobFoji4x06iRzXRtw2GQQwYJdeVAifd6tLoTukoRVDVbvPZM2t-ziZ1PO_1BtTWMvSw3wzkV-pxD1iwTfI0qmbwpbL44Rn6RS73MLGwFoOcDABHlyafW3t4VEbWDw-Ojr9KLoYKt4Nk7zVDDnWEAI6fh9hE0T7K-sZ6mNIRKRWughzBBIvPe_BV5hU1nabmTqAHL6gbnWkR39r1y6c6R30jo-pQOg",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDP2muwB54BpZjvTNWwwpWtdtgAP_lseid6-rOP6bw7NqvxuH8BceTVI6q54sKBYzoRsxPjYkA5OxSmUP16m506PHn49ksc4uAmxdf3jMw-PO9jpWzMMs1KBTqSniYV0lYb49vHRuJ_RUXkvr51mDSWeCIF1CKao7kUpHTlDjVQXMIzCT4NfF2gFFxWOnBX-N5TTa-e8urMUDZ-6iiwkbyjb2-Qx4tBDHdmJIUiKqc",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAPob2d-opxKAWMwOZoX9nz8iV6_a2aqvJXWpZ5edXQ1LLmdqZ0sJzXzwFFFFNOrRKuGUcajgGIEEVbVjk3_fLnHgPwaxFXnMA1Nw15_W7W_GrW7apmSsu6zgD6wYrXDgqmXh6kRMYAwcYab_G1ewa7bFeNtAkbqcgok3kllgZhIgOZ9G06ok-WwybbuuH4iZlbib9RswQwBT0VIpKUrqI5KL2R3VEdl3ejLS8gDaU",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDkCWtgi5GorQ8qExfo7b19HsQsyVvvi-esnLeI5lh2XjstWJgieQ49d9sFOTsFJh3sFrNiACfVYGHFMHstqnjM49yIt-zwlKjSzhNNMIaHHWiDBTDM3o8u92Qx-UMKYz1pzNCWE4wDRhBtA6Ujm902xPhsD93Y_Go1iGr3PFiX1Zypsq0iv3oTK-j0wiV8aMkdXNwlsUteIuFX_hB66oR1uk4Nu0sc0vh-pF1sFrI",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDT1Z7886-qhfQ3v5XxyMr0RoxeLLYnXkcS8Sw0q83aWwzrNjFp4i-jy7DYbgzR7ZLhZ1vx6YnS8yiu-wWecQtDVPDiqi8jTE2YYeXhAYieJ_ha0P3gM0fmzjE38P3mT0eWIzYRIErEGWM6pwjDV2dBjjEuVUQyy1G03hF0L0GRTeguVO2a2SqLO9q3m7n9PwQStG3p7hVRO0Ta3sEcFBxEzTcnTZ8fiLktfl2Ul4o",
-];
+const fallbackPhotos = Array.from({ length: 5 }, (_, i) => `/assets/banners/home-${i + 1}.jpg`);
 
 const INTERVAL_MS = 300_000;
 type Banner = Record<string, unknown> & { id: string };
