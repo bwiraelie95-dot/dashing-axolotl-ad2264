@@ -28,6 +28,8 @@ d'une séquence sans trou.
 
 Définir les mêmes variables dans Netlify et utiliser TLS si le serveur MySQL l'exige. Les migrations sont
 idempotentes et les objets avancés sont réinstallés proprement par `npm run db:deploy`.
+En production, conserver `DIRECT_URL` configurée avec le compte de migration : ne pas la remplacer par
+`DATABASE_URL`, qui doit rester le compte applicatif aux privilèges limités.
 
 Attention : les adresses sortantes des fonctions Netlify changent par défaut, alors que Loopia autorise un
 hôte/IP par utilisateur MySQL. Une liste d'autorisation stable exige Netlify Private Connectivity (Enterprise)
