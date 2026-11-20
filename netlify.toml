@@ -5,7 +5,7 @@
 # Apply migrations and recreate advanced database objects only in production.
 # Deploy previews must not modify the shared production database.
 [context.production]
-  command = 'DIRECT_URL="$DATABASE_URL" npm run db:deploy && npm run build'
+  command = "npm run db:deploy && npm run build"
 
 [build.environment]
   NODE_VERSION = "22"

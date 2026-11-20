@@ -1,6 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import mysql, { type RowDataPacket } from 'mysql2/promise';
+import nextEnv from '@next/env';
+
+nextEnv.loadEnvConfig(process.cwd());
 
 type TriggerInspection = RowDataPacket & {
   TRIGGER_NAME: string;
@@ -82,13 +85,22 @@ async function main() {
   const rawUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
   if (!rawUrl) throw new Error('DIRECT_URL or DATABASE_URL is required.');
   const url = new URL(rawUrl);
+  // Prisma resolves sslcert relative to schema.prisma; use the same convention.
+  const certificate = url.searchParams.get('sslcert');
+  const tlsRequired = certificate || url.searchParams.get('sslaccept') === 'strict' ||
+    url.searchParams.get('ssl-mode') === 'REQUIRED' || url.hostname.endsWith('.aivencloud.com');
+  const ssl = tlsRequired ? {
+    rejectUnauthorized: true,
+    ...(certificate ? { ca: await readFile(path.resolve('prisma', certificate), 'utf8') } : {})
+  } : undefined;
   const connection = await mysql.createConnection({
     host: url.hostname,
     port: Number(url.port || 3306),
     user: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
     database: url.pathname.replace(/^\//, ''),
-    charset: 'utf8mb4'
+    charset: 'utf8mb4',
+    ssl
   });
   const sql = await readFile(path.join(process.cwd(), 'database', 'advanced_objects.sql'), 'utf8');
   try {
