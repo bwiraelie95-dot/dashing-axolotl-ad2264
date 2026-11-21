@@ -1,3 +1,4 @@
+import { sendContactEmail, type ContactMessage } from "@/lib/mail/contact";
 import { contentModel } from '@/models/contentModel';
 import { logAuditAction } from '@/models/auditModel';
 import type { ContentEntity } from '@/lib/validation';
@@ -95,18 +96,40 @@ export const publicContentModel = {
       category: data.category ?? 'General Inquiry',
       subject: data.subject ?? `Message de ${data.name}`,
       status: 'new',
+      emailDelivery: 'pending',
       read: false,
       date: new Date().toISOString().slice(0, 10)
     });
-    await logAuditAction(
-      { userName: String(data.name), userEmail: String(data.email) },
-      'create',
-      'contactSubmissions',
-      'Nouveau message reçu via le site public.',
-      submission.id,
-      ipAddress
-    );
-    return submission;
+    let emailDelivery: 'sent' | 'failed' = 'failed';
+    try {
+      await sendContactEmail({ ...data, id: submission.id } as ContactMessage);
+      emailDelivery = 'sent';
+    } catch {
+      // Never log SMTP credentials, message content or raw provider errors.
+      console.error('[ACV contact] Notification e-mail indisponible.', { id: submission.id });
+    }
+    try {
+      await contentModel.update('contactSubmissions', submission.id, {
+        emailDelivery,
+        ...(emailDelivery === 'sent' ? { emailSentAt: new Date().toISOString() } : {}),
+      });
+      await logAuditAction(
+        { userName: String(data.name), userEmail: String(data.email) },
+        'create', 'contactSubmissions',
+        emailDelivery === 'sent' ? 'Message enregistré ; notification acceptée par SMTP.' : 'Message enregistré ; notification e-mail échouée. À traiter dans l’administration.',
+        submission.id, ipAddress,
+      );
+    } catch {
+      // The original message is already saved: don't invite duplicate submissions.
+      console.error('[ACV contact] Suivi de notification non enregistré.', { id: submission.id });
+    }
+    return {
+      id: submission.id,
+      emailDelivery,
+      message: emailDelivery === 'sent'
+        ? 'Votre message a été enregistré et transmis à l’équipe ACV. Merci !'
+        : 'Votre message a été enregistré dans notre espace de contact, mais la notification e-mail est indisponible. Pour une demande urgente, écrivez directement à info@acv-drc.org.',
+    };
   },
 
   async submitDonation(data: Record<string, unknown>, ipAddress?: string) {

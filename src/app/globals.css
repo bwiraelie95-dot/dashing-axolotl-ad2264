@@ -2707,3 +2707,5 @@ html {
   .approach-step { padding: 22px; }
   .approach-page .ubuntu-panel .story-block { padding: 28px; }
 }
+
+.contact-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }

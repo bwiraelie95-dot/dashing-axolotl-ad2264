@@ -424,6 +424,9 @@ export default function ResourcePanel({
                 {receivedAt}
               </time>
             )}
+            {detail.emailDelivery === "sent" && <p className="admin-note">Notification acceptée par le serveur e-mail.</p>}
+            {detail.emailDelivery === "failed" && <p className="admin-error">Notification e-mail échouée. Le message est conservé ici : répondez au visiteur depuis votre messagerie.</p>}
+            {detail.emailDelivery === "pending" && <p className="admin-note">Notification e-mail en attente ou non confirmée.</p>}
             <p className="admin-message-content">{text(detail.message)}</p>
           </section>
         </div>

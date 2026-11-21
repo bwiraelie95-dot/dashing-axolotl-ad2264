@@ -3,23 +3,23 @@ import { useState, type FormEvent } from "react";
 export default function ContactForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setBusy(true);
     setError("");
-    setSent(false);
+    setSent("");
     try {
       const response = await fetch("/api/public/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.fromEntries(new FormData(form))),
-        signal: AbortSignal.timeout(20000),
+        signal: AbortSignal.timeout(45000),
       });
       const body = await response.json();
       if (!response.ok) throw Error(body.error || "Envoi impossible.");
-      setSent(true);
+      setSent(body.data?.message || "Votre message a été enregistré.");
       form.reset();
     } catch (error) {
       setError(error instanceof Error ? error.message : "Envoi impossible.");
@@ -29,6 +29,9 @@ export default function ContactForm() {
   }
   return (
     <form className="admin-card admin-form" onSubmit={submit}>
+      <div className="contact-honeypot" aria-hidden="true">
+        <label>Votre site web<input name="website" tabIndex={-1} autoComplete="off" /></label>
+      </div>
       <label>
         Votre nom
         <input
@@ -75,7 +78,7 @@ export default function ContactForm() {
       )}
       {sent && (
         <p role="status" className="admin-success">
-          Votre message a été transmis à l’équipe ACV.
+          {sent}
         </p>
       )}
       <button disabled={busy} className="admin-button">

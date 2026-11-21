@@ -1,3 +1,4 @@
+import { rateLimit } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { apiError, getRequestIp } from '@/lib/http';
@@ -82,7 +83,22 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { resource: rawResource } = await context.params;
     const resource = postResourceSchema.parse(rawResource);
-    const body: unknown = await request.json();
+    if (resource === 'contact') await rateLimit(request, 'contact', 5, 60000);
+    if (Number(request.headers.get('content-length') || 0) > 65536) {
+      return NextResponse.json({ success: false, error: 'Message trop volumineux.' }, { status: 413 });
+    }
+    const rawBody = await request.text();
+    if (Buffer.byteLength(rawBody, 'utf8') > 65536) {
+      return NextResponse.json({ success: false, error: 'Message trop volumineux.' }, { status: 413 });
+    }
+    let body: unknown;
+    try { body = JSON.parse(rawBody); } catch {
+      return NextResponse.json({ success: false, error: 'Formulaire invalide.' }, { status: 400 });
+    }
+    // Honeypot: normal visitors never fill this field.
+    if (resource === 'contact' && body && typeof body === 'object' && 'website' in body && body.website) {
+      return NextResponse.json({ success: true, data: { message: 'Merci pour votre message.' } }, { status: 201 });
+    }
     const ipAddress = getRequestIp(request);
 
     const data =
